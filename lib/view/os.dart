@@ -141,7 +141,7 @@ class _OSState extends State<OS> {
           ),
           Expanded(
             child: ListView.builder(
-                itemCount: 3,
+                itemCount: 103,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
@@ -178,6 +178,46 @@ class _OSState extends State<OS> {
           )
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    scrollable: true,
+                    title: Text('ADICIONAR PEÇA'),
+                    content: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Form(
+                        child: Column(
+                          children: <Widget>[
+                            TextFormField(
+                              decoration: InputDecoration(
+                                icon: Icon(Icons.search),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    actions: [
+                      ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.blue,
+                            onPrimary: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(32.0),
+                            ),
+                          ),
+                          child: Text("IR"),
+                          onPressed: () {
+                            // your code
+                          }),
+                    ],
+                  );
+                });
+          },
+          child: Icon(Icons.add)),
     );
   }
 }
