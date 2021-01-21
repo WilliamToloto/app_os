@@ -166,6 +166,9 @@ class _OSState extends State<OS> {
                           child: Text(
                             "JOSE DA SILVA PEREIRA",
                             style: TextStyle(fontWeight: FontWeight.bold),
+                            //ver
+                            //https://santosenoque-ss.medium.com/how-to-connect-flutter-app-to-mysql-web-server-and-phpmyadmin-e100f47bfb82
+                            //apaga
                           ),
                         ),
                       ],
