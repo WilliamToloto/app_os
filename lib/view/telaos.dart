@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OS extends StatefulWidget {
   @override
@@ -6,7 +10,31 @@ class OS extends StatefulWidget {
 }
 
 class _OSState extends State<OS> {
+  static _read() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'operador';
+    final value = prefs.getString(key);
+    print('saved tester $value');
+    String operadorLogado = value;
+    return operadorLogado;
+  }
+
+  List _pecasList = [];
+
   @override
+  final _numeroOsController = TextEditingController();
+  void initState() {
+    super.initState();
+    _read();
+
+    //WidgetsBinding.instance.addPostFrameCallback((_) => _read());
+
+    // final prefs = await SharedPreferences.getInstance();
+    // final key = 'usuario';
+    // final value = prefs.getString(key);
+    // print('saved $value');
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -20,37 +48,52 @@ class _OSState extends State<OS> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          scrollable: true,
-                          title: Text('BUSCAR OS'),
-                          content: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Form(
-                              child: Column(
-                                children: <Widget>[
-                                  TextFormField(
-                                    decoration: InputDecoration(
-                                      icon: Icon(Icons.search),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          actions: [
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.blue,
-                                  onPrimary: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32.0),
+                            scrollable: true,
+                            title: Text('BUSCAR OS'),
+                            content: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Form(
+                                child: TextFormField(
+                                  controller: _numeroOsController,
+                                  decoration: InputDecoration(
+                                    icon: Icon(Icons.search),
                                   ),
                                 ),
-                                child: Text("IR"),
-                                onPressed: () {
-                                  // your code
-                                }),
-                          ],
-                        );
+                              ),
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.blue,
+                                    onPrimary: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(32.0),
+                                    ),
+                                  ),
+                                  child: Text("IR"),
+                                  onPressed: () async {
+                                    Response response;
+                                    Dio dio = new Dio();
+                                    String url =
+                                        'http://192.168.15.5:8090/api/getOs';
+                                    response = await dio.post(url, data: {
+                                      "numeroos": _numeroOsController.text
+                                    });
+
+                                    //   print(response.body)
+                                    // _pecasList =
+                                    //     json.decode(response.toString());
+                                    // print("Peças List:");
+                                    // print(_pecasList)
+
+                                    // Map<String, dynamic> map = jsonDecode(response);
+
+                                    print(response);
+                                    Navigator.pop(context, true);
+
+                                    // your code
+                                  }),
+                            ]);
                       });
                 },
                 child: Icon(
@@ -67,6 +110,17 @@ class _OSState extends State<OS> {
               backgroundColor: Colors.red,
               title: Text("Configurações"),
             ),
+            ListTile(
+                leading: Icon(Icons.person),
+                title: Text('Usuário'),
+                onTap: () {}
+                //  async {
+                //   final prefs = await SharedPreferences.getInstance();
+                //   prefs.clear();
+                //   setState(() {
+                //     Navigator.of(context).pushReplacement(MaterialPageRoute(
+                //         builder: (context) => LoginScreen()));
+                ),
             ListTile(
                 leading: Icon(Icons.remove_circle),
                 title: Text('SAIR'),
@@ -113,22 +167,28 @@ class _OSState extends State<OS> {
                 children: <Widget>[
                   Expanded(
                     flex: 2,
-                    child: Text(
-                      "CÓDIGO",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    child: Text("CÓDIGO",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis),
                   ),
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Text(
                       "QTD",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                   Expanded(
-                    flex: 6,
+                    flex: 3,
                     child: Text(
                       "FUNCIONÁRIO",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Text(
+                      "DESCRIÇÃO",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -141,7 +201,7 @@ class _OSState extends State<OS> {
           ),
           Expanded(
             child: ListView.builder(
-                itemCount: 103,
+                itemCount: _pecasList.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
@@ -155,21 +215,28 @@ class _OSState extends State<OS> {
                           ),
                         ),
                         Expanded(
-                          flex: 2,
+                          flex: 1,
                           child: Text(
                             "12",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Expanded(
-                          flex: 6,
+                          flex: 3,
+                          child: Text("JOSE DA SILVA PEREIRA",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis
+                              //ver
+                              //https://santosenoque-ss.medium.com/how-to-connect-flutter-app-to-mysql-web-server-and-phpmyadmin-e100f47bfb82
+                              //apaga
+                              ),
+                        ),
+                        Expanded(
+                          flex: 4,
                           child: Text(
-                            "JOSE DA SILVA PEREIRA",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                            //ver
-                            //https://santosenoque-ss.medium.com/how-to-connect-flutter-app-to-mysql-web-server-and-phpmyadmin-e100f47bfb82
-                            //apaga
-                          ),
+                              "DESCRIÇÃO DA PEÇA XXXXXX11111111 XXXXXXX",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis),
                         ),
                       ],
                     ),
