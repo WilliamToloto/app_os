@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:app_novo/model/produtoOs.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OS extends StatefulWidget {
@@ -19,7 +21,7 @@ class _OSState extends State<OS> {
     return operadorLogado;
   }
 
-  List _pecasList = [];
+  List produtosList = [];
 
   @override
   final _numeroOsController = TextEditingController();
@@ -63,36 +65,79 @@ class _OSState extends State<OS> {
                             ),
                             actions: [
                               ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    primary: Colors.blue,
-                                    onPrimary: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(32.0),
-                                    ),
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.blue,
+                                  onPrimary: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(32.0),
                                   ),
-                                  child: Text("IR"),
-                                  onPressed: () async {
-                                    Response response;
-                                    Dio dio = new Dio();
-                                    String url =
-                                        'http://192.168.15.5:8090/api/getOs';
-                                    response = await dio.post(url, data: {
-                                      "numeroos": _numeroOsController.text
-                                    });
+                                ),
+                                child: Text("IR"),
+                                onPressed: () async {
+                                  Response response;
+                                  Dio dio = new Dio();
+                                  String url =
+                                      'http://192.168.15.2:8090/api/getOs';
+                                  response = await dio.post(url, data: {
+                                    "numeroos": _numeroOsController.text
+                                  });
 
-                                    //   print(response.body)
-                                    // _pecasList =
-                                    //     json.decode(response.toString());
-                                    // print("Peças List:");
-                                    // print(_pecasList)
+                                  print(response.statusCode);
 
-                                    // Map<String, dynamic> map = jsonDecode(response);
+                                  // final extractedData =
+                                  //     jsonDecode(response.data)
+                                  //         as Map<String, dynamic>;
+                                  // final List<ProdutoOs> loadedProducts = [];
+                                  // extractedData.forEach((key, value) {
+                                  //   loadedProducts.add(ProdutoOs(
+                                  //       cod_produto: value['Codigo_Produto'],
+                                  //       qtd: value['Qtde'],
+                                  //       desc: value['Descricao'],
+                                  //       numOs: value['Numero_da_OS'],
+                                  //       codOs: value['CodOS']));
 
-                                    print(response);
+                                  //   print(extractedData);
+                                  // });
+
+                                  // Map<dynamic, dynamic> map =
+                                  //     jsonDecode(response.data);
+                                  // print(map);
+
+                                  // _pecasList =
+                                  //     json.decode(response.toString());
+                                  // print("Peças List:");
+                                  // print(_pecasList)
+
+                                  // Map<String, dynamic> map = jsonDecode(response);
+
+                                  //print(response.data);
+
+                                  Future loadProdutos() async {
+                                    //  String jsonProdutos = response.data;
+                                    //     final jsonResponse =
+                                    //      json.decode(response.data);
+                                    ProdutosList produtosList =
+                                        ProdutosList.fromJson(response.data);
+                                    print(produtosList.produtos[1].qtd);
+                                    print(produtosList.produtos.length);
+                                  }
+
+                                  // ignore: unnecessary_statements
+
+                                  setState(() {
+                                    loadProdutos();
                                     Navigator.pop(context, true);
+                                  });
 
-                                    // your code
-                                  }),
+                                  // var uuu = response.data;
+                                  // print(uuu);
+
+                                  // var maplist = await json
+                                  //     .decode(uuu)
+                                  //     .cast<Map<String, dynamic>>();
+                                  // print(maplist);
+                                },
+                              )
                             ]);
                       });
                 },
@@ -201,7 +246,7 @@ class _OSState extends State<OS> {
           ),
           Expanded(
             child: ListView.builder(
-                itemCount: _pecasList.length,
+                itemCount: produtosList.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),

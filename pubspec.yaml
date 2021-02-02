@@ -27,6 +27,7 @@ dependencies:
   cupertino_icons: ^1.0.0
   dart_mssql: ^1.0.1
   dio: ^3.0.10
+  jwt_decoder: ^1.0.4
   shared_preferences: ^0.5.12+4
 
 dev_dependencies:
