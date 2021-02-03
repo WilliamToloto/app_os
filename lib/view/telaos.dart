@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:app_novo/model/produtoOs.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OS extends StatefulWidget {
@@ -21,16 +19,16 @@ class _OSState extends State<OS> {
     return operadorLogado;
   }
 
-  List produtosList = [];
+  List produtosList1 = <ProdutoOs>[];
 
   @override
   final _numeroOsController = TextEditingController();
+
   void initState() {
     super.initState();
     _read();
-
+    // produtosList1 = [];
     //WidgetsBinding.instance.addPostFrameCallback((_) => _read());
-
     // final prefs = await SharedPreferences.getInstance();
     // final key = 'usuario';
     // final value = prefs.getString(key);
@@ -40,7 +38,10 @@ class _OSState extends State<OS> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("OS  Nº  xxx"),
+        title: Text(
+          "OS  Nº  ${produtosList1.isEmpty ? " --- " : produtosList1[0].numOs}",
+        ),
+        //+ produtosList1[0].cod_produto),
         actions: <Widget>[
           Padding(
               padding: EdgeInsets.only(right: 20.0),
@@ -77,13 +78,12 @@ class _OSState extends State<OS> {
                                   Response response;
                                   Dio dio = new Dio();
                                   String url =
-                                      'http://192.168.15.2:8090/api/getOs';
+                                      'http://192.168.15.4:8090/api/getOs';
+                                  // 'http://192.168.15.2:8090/api/getOs';
                                   response = await dio.post(url, data: {
                                     "numeroos": _numeroOsController.text
                                   });
-
                                   print(response.statusCode);
-
                                   // final extractedData =
                                   //     jsonDecode(response.data)
                                   //         as Map<String, dynamic>;
@@ -95,43 +95,36 @@ class _OSState extends State<OS> {
                                   //       desc: value['Descricao'],
                                   //       numOs: value['Numero_da_OS'],
                                   //       codOs: value['CodOS']));
-
                                   //   print(extractedData);
                                   // });
-
                                   // Map<dynamic, dynamic> map =
                                   //     jsonDecode(response.data);
                                   // print(map);
-
                                   // _pecasList =
                                   //     json.decode(response.toString());
                                   // print("Peças List:");
                                   // print(_pecasList)
-
                                   // Map<String, dynamic> map = jsonDecode(response);
-
                                   //print(response.data);
-
                                   Future loadProdutos() async {
                                     //  String jsonProdutos = response.data;
                                     //     final jsonResponse =
                                     //      json.decode(response.data);
                                     ProdutosList produtosList =
                                         ProdutosList.fromJson(response.data);
-                                    print(produtosList.produtos[1].qtd);
+                                    print(produtosList.produtos[0].qtd);
                                     print(produtosList.produtos.length);
+                                    produtosList1 = produtosList.produtos;
+                                    print(produtosList1[0].desc);
+                                    print(produtosList1[0].cod_produto);
                                   }
-
-                                  // ignore: unnecessary_statements
 
                                   setState(() {
                                     loadProdutos();
                                     Navigator.pop(context, true);
                                   });
-
                                   // var uuu = response.data;
                                   // print(uuu);
-
                                   // var maplist = await json
                                   //     .decode(uuu)
                                   //     .cast<Map<String, dynamic>>();
@@ -183,26 +176,27 @@ class _OSState extends State<OS> {
           Container(
             color: Colors.blue,
             child: Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 8,
-                    child: Text(
-                      "CLIENTE:",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 8,
-                    child: Text(
-                      "STATUS:",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Column(
+                  children: [
+                    Row(children: [
+                      Text(
+                          "CLIENTE:  ${(produtosList1.isEmpty || produtosList1[0].cliente == null) ? " --- " : produtosList1[0].cliente}",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis),
+                    ]),
+                    Row(
+                      children: [
+                        Text(
+                          "STATUS:  ${(produtosList1.isEmpty || produtosList1[0].status == null) ? " --- " : produtosList1[0].status}",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    )
+                  ],
+                )),
           ),
           Container(
             color: Colors.blue,
@@ -224,7 +218,7 @@ class _OSState extends State<OS> {
                     ),
                   ),
                   Expanded(
-                    flex: 3,
+                    flex: 4,
                     child: Text(
                       "FUNCIONÁRIO",
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -246,7 +240,7 @@ class _OSState extends State<OS> {
           ),
           Expanded(
             child: ListView.builder(
-                itemCount: produtosList.length,
+                itemCount: produtosList1.length,
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
@@ -255,32 +249,40 @@ class _OSState extends State<OS> {
                         Expanded(
                           flex: 2,
                           child: Text(
-                            "12345",
+                            produtosList1.isEmpty
+                                ? "data is empty"
+                                : produtosList1[index].cod_produto,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Expanded(
                           flex: 1,
                           child: Text(
-                            "12",
+                            //"2"
+                            produtosList1.isEmpty
+                                ? "data is empty"
+                                : produtosList1[index].qtd,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
                         Expanded(
-                          flex: 3,
-                          child: Text("JOSE DA SILVA PEREIRA",
+                          flex: 4,
+                          child: Text(
+                              produtosList1[index].funcionario == null
+                                  ? "-"
+                                  : produtosList1[index].funcionario,
                               style: TextStyle(fontWeight: FontWeight.bold),
-                              overflow: TextOverflow.ellipsis
-                              //ver
-                              //https://santosenoque-ss.medium.com/how-to-connect-flutter-app-to-mysql-web-server-and-phpmyadmin-e100f47bfb82
-                              //apaga
-                              ),
+                              overflow: TextOverflow.ellipsis),
                         ),
                         Expanded(
                           flex: 4,
                           child: Text(
-                              "DESCRIÇÃO DA PEÇA XXXXXX11111111 XXXXXXX",
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              produtosList1.isEmpty
+                                  ? "data is empty"
+                                  : produtosList1[index].desc,
+                              //produtosList1[index].desc,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 12),
                               overflow: TextOverflow.ellipsis),
                         ),
                       ],
