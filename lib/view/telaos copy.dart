@@ -8,8 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_dropdown/flutter_dropdown.dart';
 
-import '../model/funcionarios.dart';
-
 class OS extends StatefulWidget {
   @override
   _OSState createState() => _OSState();
@@ -32,9 +30,6 @@ class _OSState extends State<OS> {
   //List itensDrop = [];
   //List _func = [];
 
-  // LIST OF DROPDOWN MENU ITEMS;
-  List<DropdownMenuItem> newFuncionariosList = [];
-
   Future loadFuncionarios() async {
     Response response;
     Dio dio = new Dio();
@@ -43,26 +38,9 @@ class _OSState extends State<OS> {
 
     FuncionariosList funcionariosList =
         FuncionariosList.fromJson(response.data);
-
-    // CREATING A DROPDOWN MENU ITEM FOR EACH ELEEMENT
-    funcionariosList.funcionarios.forEach((element) {
-      newFuncionariosList.add(
-        DropdownMenuItem(
-          child: Text(
-            '${element.nome}',
-            style: TextStyle(fontSize: 26),
-          ),
-          value: element.codigo,
-        ),
-      );
-    });
-
-    print(newFuncionariosList);
-
     print(funcionariosList.funcionarios[0].nome);
     print(funcionariosList.funcionarios.length);
     print(funcionariosList.funcionarios);
-
     //itensDrop = funcionariosList.funcionarios;
     // print(itensDrop);
     // funcioa1 = response.data;
@@ -393,99 +371,74 @@ class _OSState extends State<OS> {
           child: Icon(Icons.add)),
       bottomNavigationBar: BottomAppBar(
         child: Container(
-          height: 200.0,
+          height: 100.0,
           color: Colors.blue[400],
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(children: [
               Container(
-                height: 30,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                ),
-                // child: DropDown(
-                //   items: funcionariosList
-                //       .map((funcionario) => items(
-                //             child: null,
-                //           ))
-                //       .toList(),
-
-                //   //                     FuncionariosList funcionariosList =
-                //   //     FuncionariosList.fromJson(response.data);
-                //   // print(funcionariosList.funcionarios[0].nome);
-                //   // print(funcionariosList.funcionarios.length);
-
-                //   // String data = funcionariosList.funcionarios as String;
-                //   // print(data);
-
-                //   // hint: Text("Male"),
-                //   onChanged: print,
-                // )
-// hot restart please
-                child: Container(
-                  height: 140,
-                  color: Colors.red,
-                  child: DropdownButtonFormField(
-                    isExpanded: true,
-                    itemHeight: 100,
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                    )),
-                    hint: Text('Choose '),
-                    // validator: (value) {
-                    //   if (dropDownButtonValue != "Male" || dropDownButtonValue != "Female") {
-                    //     return "Please select gender";
-                    //   }
-                    // },
-
-                    onChanged: (value) {
-                      print(value);
-                    },
-
-                    items: newFuncionariosList,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
                   ),
-                ),
-                // child: DropDown(
-                //   items: ["test"],
-                //
-                //   //                   FuncionariosList funcionariosList =
-                //   //     FuncionariosList.fromJson(response.data);
-                //   // print(funcionariosList.funcionarios[0].nome);
-                //   // print(funcionariosList.funcionarios.length);
-                // ) //MyWidget()
-                // DropdownButton(
-                //     isExpanded: true,
-                //     iconEnabledColor: Colors.blue[900],
-                //     value: _value,
-                //     items: funcionariosList
-                //         .map((funcionario) => DropdownMenuItem(
-                //               child: null,
-                //             ))
-                //         .toList(),
+                  // child: DropDown(
+                  //   items: funcionariosList
+                  //       .map((funcionario) => items(
+                  //             child: null,
+                  //           ))
+                  //       .toList(),
 
-                //     // DropdownMenuItem(
-                //     //   child: Text("First Item"),
-                //     //   value: 1,
-                //     // ),
-                //     // DropdownMenuItem(
-                //     //   child: Text("Second Item"),
-                //     //   value: 2,
-                //     // ),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 3),
-                //     // DropdownMenuItem(child: Text("Fourth Item"), value: 4),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 5),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 6),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 7),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 8),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 9),
+                  //   //                     FuncionariosList funcionariosList =
+                  //   //     FuncionariosList.fromJson(response.data);
+                  //   // print(funcionariosList.funcionarios[0].nome);
+                  //   // print(funcionariosList.funcionarios.length);
 
-                //     onChanged: (value) {
-                //       setState(() {
-                //         _value = value;
-                //       });
-                //     }),
-              ),
+                  //   // String data = funcionariosList.funcionarios as String;
+                  //   // print(data);
+
+                  //   // hint: Text("Male"),
+                  //   onChanged: print,
+                  // )
+                  child: DropDown(
+                    items: ["test"],
+
+                    //                   FuncionariosList funcionariosList =
+                    //     FuncionariosList.fromJson(response.data);
+                    // print(funcionariosList.funcionarios[0].nome);
+                    // print(funcionariosList.funcionarios.length);
+                  ) //MyWidget()
+                  // DropdownButton(
+                  //     isExpanded: true,
+                  //     iconEnabledColor: Colors.blue[900],
+                  //     value: _value,
+                  //     items: funcionariosList
+                  //         .map((funcionario) => DropdownMenuItem(
+                  //               child: null,
+                  //             ))
+                  //         .toList(),
+
+                  //     // DropdownMenuItem(
+                  //     //   child: Text("First Item"),
+                  //     //   value: 1,
+                  //     // ),
+                  //     // DropdownMenuItem(
+                  //     //   child: Text("Second Item"),
+                  //     //   value: 2,
+                  //     // ),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 3),
+                  //     // DropdownMenuItem(child: Text("Fourth Item"), value: 4),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 5),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 6),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 7),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 8),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 9),
+
+                  //     onChanged: (value) {
+                  //       setState(() {
+                  //         _value = value;
+                  //       });
+                  //     }),
+                  ),
 
               // Form(
               //   child: TextFormField(
