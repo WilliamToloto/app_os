@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'package:app_novo/model/dropdownitens.dart';
+import 'package:app_novo/model/funcionarios.dart';
 import 'package:app_novo/model/produtoOs.dart';
+import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dropdown/flutter_dropdown.dart';
 
 class OS extends StatefulWidget {
   @override
@@ -19,15 +23,54 @@ class _OSState extends State<OS> {
     return operadorLogado;
   }
 
+  var funcioa1;
   List produtosList1 = <ProdutoOs>[];
+  int _value = 1;
+  List funcionariosList = <Funcionarios>[];
+  //List itensDrop = [];
+  //List _func = [];
 
-  @override
+  Future loadFuncionarios() async {
+    Response response;
+    Dio dio = new Dio();
+    String url = 'http://192.168.15.5:8090/api/funcionarios';
+    response = await dio.post(url);
+
+    FuncionariosList funcionariosList =
+        FuncionariosList.fromJson(response.data);
+    print(funcionariosList.funcionarios[0].nome);
+    print(funcionariosList.funcionarios.length);
+    print(funcionariosList.funcionarios);
+    //itensDrop = funcionariosList.funcionarios;
+    // print(itensDrop);
+    // funcioa1 = response.data;
+    // final Map<String, dynamic> data1 = json.decode(funcioa1);
+    // print(data1);
+    // print("funcioa1:::");
+    // print(funcioa1);
+    // itensDrop = jsonDecode(funcioa1);
+
+    // print("itensdrop:::");
+    // print(itensDrop);
+
+    // List<Funcionarios> data = funcionariosList.funcionarios;
+    // print(data);
+
+    // var jsonFunc = JsonDecoder().convert(data);
+    // _func = (json).map<Funcionarios>((data){
+
+    // }).toList();
+
+    // );
+  }
+
   final _numeroOsController = TextEditingController();
 
+  @override
   void initState() {
     super.initState();
     _read();
-    // produtosList1 = [];
+    loadFuncionarios();
     //WidgetsBinding.instance.addPostFrameCallback((_) => _read());
     // final prefs = await SharedPreferences.getInstance();
     // final key = 'usuario';
@@ -75,60 +118,54 @@ class _OSState extends State<OS> {
                                 ),
                                 child: Text("IR"),
                                 onPressed: () async {
-                                  Response response;
-                                  Dio dio = new Dio();
-                                  String url =
-                                      'http://192.168.15.4:8090/api/getOs';
-                                  // 'http://192.168.15.2:8090/api/getOs';
-                                  response = await dio.post(url, data: {
-                                    "numeroos": _numeroOsController.text
-                                  });
-                                  print(response.statusCode);
-                                  // final extractedData =
-                                  //     jsonDecode(response.data)
-                                  //         as Map<String, dynamic>;
-                                  // final List<ProdutoOs> loadedProducts = [];
-                                  // extractedData.forEach((key, value) {
-                                  //   loadedProducts.add(ProdutoOs(
-                                  //       cod_produto: value['Codigo_Produto'],
-                                  //       qtd: value['Qtde'],
-                                  //       desc: value['Descricao'],
-                                  //       numOs: value['Numero_da_OS'],
-                                  //       codOs: value['CodOS']));
-                                  //   print(extractedData);
-                                  // });
-                                  // Map<dynamic, dynamic> map =
-                                  //     jsonDecode(response.data);
-                                  // print(map);
-                                  // _pecasList =
-                                  //     json.decode(response.toString());
-                                  // print("Peças List:");
-                                  // print(_pecasList)
-                                  // Map<String, dynamic> map = jsonDecode(response);
-                                  //print(response.data);
-                                  Future loadProdutos() async {
-                                    //  String jsonProdutos = response.data;
-                                    //     final jsonResponse =
-                                    //      json.decode(response.data);
-                                    ProdutosList produtosList =
-                                        ProdutosList.fromJson(response.data);
-                                    print(produtosList.produtos[0].qtd);
-                                    print(produtosList.produtos.length);
-                                    produtosList1 = produtosList.produtos;
-                                    print(produtosList1[0].desc);
-                                    print(produtosList1[0].cod_produto);
-                                  }
+                                  if (_numeroOsController.text.isEmpty) {
+                                    BotToast.showText(
+                                        text: "CAMPO VAZIO",
+                                        clickClose: true,
+                                        backgroundColor: Colors.black26);
+                                  } else {
+                                    Response response;
+                                    Dio dio = new Dio();
+                                    String url =
+                                        'http://192.168.15.5:8090/api/getOs';
+                                    // 'http://192.168.15.2:8090/api/getOs';
+                                    response = await dio.post(url, data: {
+                                      "numeroos": _numeroOsController.text
+                                    });
+                                    print(response.statusCode);
 
-                                  setState(() {
-                                    loadProdutos();
-                                    Navigator.pop(context, true);
-                                  });
-                                  // var uuu = response.data;
-                                  // print(uuu);
-                                  // var maplist = await json
-                                  //     .decode(uuu)
-                                  //     .cast<Map<String, dynamic>>();
-                                  // print(maplist);
+                                    if (response.data == "not_found") {
+                                      BotToast.showText(
+                                          text: "OS não encontrada",
+                                          clickClose: true,
+                                          backgroundColor: Colors.black26);
+                                    } else {
+                                      Future loadProdutos() async {
+                                        //  String jsonProdutos = response.data;
+                                        //     final jsonResponse =
+                                        //      json.decode(response.data);
+                                        ProdutosList produtosList =
+                                            ProdutosList.fromJson(
+                                                response.data);
+                                        print(produtosList.produtos[0].qtd);
+                                        print(produtosList.produtos.length);
+                                        produtosList1 = produtosList.produtos;
+                                        print(produtosList1[0].desc);
+                                        print(produtosList1[0].cod_produto);
+                                      }
+
+                                      setState(() {
+                                        loadProdutos();
+                                        Navigator.pop(context, true);
+                                      });
+                                      // var uuu = response.data;
+                                      // print(uuu);
+                                      // var maplist = await json
+                                      //     .decode(uuu)
+                                      //     .cast<Map<String, dynamic>>();
+                                      // print(maplist);
+                                    }
+                                  }
                                 },
                               )
                             ]);
@@ -332,6 +369,101 @@ class _OSState extends State<OS> {
                 });
           },
           child: Icon(Icons.add)),
+      bottomNavigationBar: BottomAppBar(
+        child: Container(
+          height: 100.0,
+          color: Colors.blue[400],
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(children: [
+              Container(
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                  ),
+                  // child: DropDown(
+                  //   items: funcionariosList
+                  //       .map((funcionario) => items(
+                  //             child: null,
+                  //           ))
+                  //       .toList(),
+
+                  //   //                     FuncionariosList funcionariosList =
+                  //   //     FuncionariosList.fromJson(response.data);
+                  //   // print(funcionariosList.funcionarios[0].nome);
+                  //   // print(funcionariosList.funcionarios.length);
+
+                  //   // String data = funcionariosList.funcionarios as String;
+                  //   // print(data);
+
+                  //   // hint: Text("Male"),
+                  //   onChanged: print,
+                  // )
+                  child: DropDown(
+                    items: ["test"],
+
+                    //                   FuncionariosList funcionariosList =
+                    //     FuncionariosList.fromJson(response.data);
+                    // print(funcionariosList.funcionarios[0].nome);
+                    // print(funcionariosList.funcionarios.length);
+                  ) //MyWidget()
+                  // DropdownButton(
+                  //     isExpanded: true,
+                  //     iconEnabledColor: Colors.blue[900],
+                  //     value: _value,
+                  //     items: funcionariosList
+                  //         .map((funcionario) => DropdownMenuItem(
+                  //               child: null,
+                  //             ))
+                  //         .toList(),
+
+                  //     // DropdownMenuItem(
+                  //     //   child: Text("First Item"),
+                  //     //   value: 1,
+                  //     // ),
+                  //     // DropdownMenuItem(
+                  //     //   child: Text("Second Item"),
+                  //     //   value: 2,
+                  //     // ),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 3),
+                  //     // DropdownMenuItem(child: Text("Fourth Item"), value: 4),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 5),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 6),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 7),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 8),
+                  //     // DropdownMenuItem(child: Text("Third Item"), value: 9),
+
+                  //     onChanged: (value) {
+                  //       setState(() {
+                  //         _value = value;
+                  //       });
+                  //     }),
+                  ),
+
+              // Form(
+              //   child: TextFormField(
+
+              //   ),
+              // )
+
+              Container(
+                  color: Colors.red,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      Response response;
+                      Dio dio = new Dio();
+                      String url = 'http://192.168.15.5:8090/api/funcionarios';
+                      // 'http://192.168.15.2:8090/api/getOs';
+                      response = await dio.post(url);
+                      print(response.statusCode);
+                      print(response.data);
+                    },
+                    child: (Text("Teste")),
+                  )),
+            ]),
+          ),
+        ),
+      ),
     );
   }
 }
