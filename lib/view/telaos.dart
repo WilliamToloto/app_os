@@ -2,12 +2,11 @@ import 'dart:convert';
 import 'package:app_novo/model/dropdownitens.dart';
 import 'package:app_novo/model/funcionarios.dart';
 import 'package:app_novo/model/produtoOs.dart';
+import 'package:app_novo/view/login.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dropdown/flutter_dropdown.dart';
-
 import '../model/funcionarios.dart';
 
 class OS extends StatefulWidget {
@@ -29,6 +28,7 @@ class _OSState extends State<OS> {
   List produtosList1 = <ProdutoOs>[];
   int _value = 1;
   List funcionariosList = <Funcionarios>[];
+  Funcionarios funcionarios;
   //List itensDrop = [];
   //List _func = [];
 
@@ -50,50 +50,31 @@ class _OSState extends State<OS> {
         DropdownMenuItem(
           child: Text(
             '${element.nome}',
-            style: TextStyle(fontSize: 26),
+            style: TextStyle(fontSize: 16),
           ),
           value: element.codigo,
         ),
       );
     });
-
     print(newFuncionariosList);
-
+    setState(() {
+      newFuncionariosList = newFuncionariosList;
+    });
     print(funcionariosList.funcionarios[0].nome);
     print(funcionariosList.funcionarios.length);
-    print(funcionariosList.funcionarios);
-
-    //itensDrop = funcionariosList.funcionarios;
-    // print(itensDrop);
-    // funcioa1 = response.data;
-    // final Map<String, dynamic> data1 = json.decode(funcioa1);
-    // print(data1);
-    // print("funcioa1:::");
-    // print(funcioa1);
-    // itensDrop = jsonDecode(funcioa1);
-
-    // print("itensdrop:::");
-    // print(itensDrop);
-
-    // List<Funcionarios> data = funcionariosList.funcionarios;
-    // print(data);
-
-    // var jsonFunc = JsonDecoder().convert(data);
-    // _func = (json).map<Funcionarios>((data){
-
-    // }).toList();
-
-    // );
   }
 
   final _numeroOsController = TextEditingController();
+  final _codprodController = TextEditingController();
+  final _codprodqtdController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _read();
-    loadFuncionarios();
-    //WidgetsBinding.instance.addPostFrameCallback((_) => _read());
+
+    //loadFuncionarios();
+    WidgetsBinding.instance.addPostFrameCallback((_) => loadFuncionarios());
     // final prefs = await SharedPreferences.getInstance();
     // final key = 'usuario';
     // final value = prefs.getString(key);
@@ -180,12 +161,6 @@ class _OSState extends State<OS> {
                                         loadProdutos();
                                         Navigator.pop(context, true);
                                       });
-                                      // var uuu = response.data;
-                                      // print(uuu);
-                                      // var maplist = await json
-                                      //     .decode(uuu)
-                                      //     .cast<Map<String, dynamic>>();
-                                      // print(maplist);
                                     }
                                   }
                                 },
@@ -221,14 +196,14 @@ class _OSState extends State<OS> {
             ListTile(
                 leading: Icon(Icons.remove_circle),
                 title: Text('SAIR'),
-                onTap: () {}
-                //  async {
-                //   final prefs = await SharedPreferences.getInstance();
-                //   prefs.clear();
-                //   setState(() {
-                //     Navigator.of(context).pushReplacement(MaterialPageRoute(
-                //         builder: (context) => LoginScreen()));
-                )
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs.clear();
+                  setState(() {
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => Login()));
+                  });
+                })
           ])),
       body: Column(
         children: [
@@ -365,8 +340,15 @@ class _OSState extends State<OS> {
                         child: Column(
                           children: <Widget>[
                             TextFormField(
+                              controller: _codprodController,
                               decoration: InputDecoration(
-                                icon: Icon(Icons.search),
+                                icon: Icon(Icons.add),
+                              ),
+                            ),
+                            TextFormField(
+                              controller: _codprodqtdController,
+                              decoration: InputDecoration(
+                                icon: Icon(Icons.add),
                               ),
                             ),
                           ],
@@ -375,17 +357,24 @@ class _OSState extends State<OS> {
                     ),
                     actions: [
                       ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.blue,
-                            onPrimary: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(32.0),
-                            ),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.blue,
+                          onPrimary: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(32.0),
                           ),
-                          child: Text("IR"),
-                          onPressed: () {
-                            // your code
-                          }),
+                        ),
+                        child: Text("IR"),
+                        onPressed: () async {
+                          Response response;
+                          Dio dio = new Dio();
+                          String url = 'http://192.168.15.5:8090/api/getPeca';
+                          response = await dio.post(url,
+                              data: {"codprod": _codprodController.text});
+                          print(response.statusCode);
+                          print(response.data);
+                        },
+                      ),
                     ],
                   );
                 });
@@ -393,106 +382,30 @@ class _OSState extends State<OS> {
           child: Icon(Icons.add)),
       bottomNavigationBar: BottomAppBar(
         child: Container(
-          height: 200.0,
+          height: 140.0,
           color: Colors.blue[400],
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(children: [
               Container(
-                height: 30,
+                height: 50,
                 decoration: BoxDecoration(
                   color: Colors.white,
                 ),
-                // child: DropDown(
-                //   items: funcionariosList
-                //       .map((funcionario) => items(
-                //             child: null,
-                //           ))
-                //       .toList(),
 
-                //   //                     FuncionariosList funcionariosList =
-                //   //     FuncionariosList.fromJson(response.data);
-                //   // print(funcionariosList.funcionarios[0].nome);
-                //   // print(funcionariosList.funcionarios.length);
-
-                //   // String data = funcionariosList.funcionarios as String;
-                //   // print(data);
-
-                //   // hint: Text("Male"),
-                //   onChanged: print,
-                // )
 // hot restart please
                 child: Container(
-                  height: 140,
-                  color: Colors.red,
+                  height: 70,
                   child: DropdownButtonFormField(
-                    isExpanded: true,
-                    itemHeight: 100,
-                    decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                    )),
                     hint: Text('Choose '),
-                    // validator: (value) {
-                    //   if (dropDownButtonValue != "Male" || dropDownButtonValue != "Female") {
-                    //     return "Please select gender";
-                    //   }
-                    // },
-
                     onChanged: (value) {
                       print(value);
+                      // here you can pass it to a variable for example
                     },
-
                     items: newFuncionariosList,
                   ),
                 ),
-                // child: DropDown(
-                //   items: ["test"],
-                //
-                //   //                   FuncionariosList funcionariosList =
-                //   //     FuncionariosList.fromJson(response.data);
-                //   // print(funcionariosList.funcionarios[0].nome);
-                //   // print(funcionariosList.funcionarios.length);
-                // ) //MyWidget()
-                // DropdownButton(
-                //     isExpanded: true,
-                //     iconEnabledColor: Colors.blue[900],
-                //     value: _value,
-                //     items: funcionariosList
-                //         .map((funcionario) => DropdownMenuItem(
-                //               child: null,
-                //             ))
-                //         .toList(),
-
-                //     // DropdownMenuItem(
-                //     //   child: Text("First Item"),
-                //     //   value: 1,
-                //     // ),
-                //     // DropdownMenuItem(
-                //     //   child: Text("Second Item"),
-                //     //   value: 2,
-                //     // ),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 3),
-                //     // DropdownMenuItem(child: Text("Fourth Item"), value: 4),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 5),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 6),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 7),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 8),
-                //     // DropdownMenuItem(child: Text("Third Item"), value: 9),
-
-                //     onChanged: (value) {
-                //       setState(() {
-                //         _value = value;
-                //       });
-                //     }),
               ),
-
-              // Form(
-              //   child: TextFormField(
-
-              //   ),
-              // )
-
               Container(
                   color: Colors.red,
                   child: ElevatedButton(
