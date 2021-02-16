@@ -14,13 +14,15 @@ class OS extends StatefulWidget {
   _OSState createState() => _OSState();
 }
 
+String operadorLogado;
+
 class _OSState extends State<OS> {
   static _read() async {
     final prefs = await SharedPreferences.getInstance();
     final key = 'operador';
     final value = prefs.getString(key);
     print('saved tester $value');
-    String operadorLogado = value;
+    operadorLogado = value;
     return operadorLogado;
   }
 
@@ -29,8 +31,45 @@ class _OSState extends State<OS> {
   int _value = 1;
   List funcionariosList = <Funcionarios>[];
   Funcionarios funcionarios;
-  //List itensDrop = [];
-  //List _func = [];
+  ProdutoOs produtoOs;
+  var funcionarioDrop;
+  var funcionarioDrop1;
+  var produtoDesc;
+  var osCod;
+  var produtoCod;
+
+  //  getPeca(){
+  //            Response response;
+  //                         Dio dio = new Dio();
+  //                         String url = 'http://192.168.15.2:8090/api/getPeca';
+  //                         response = await dio.post(url,
+  //                             data: {"codprod": _codprodController.text});
+  //                         print(response.statusCode);
+  //                         print(response.data);
+  //                         if (response.data == 'not_found') {
+  //                           BotToast.showText(
+  //                               text: "Peça não encontrada",
+  //                               clickClose: true,
+  //                               backgroundColor: Colors.black26,
+  //                               align: Alignment(0, 0));
+  //                         } else {
+  //                           produtoDesc =
+  //                               response.data[0]['Descricao'].toString();
+  //                           produtoCod = response.data[0]['Codigo'].toString();
+  //                           produtosList1.add(new ProdutoOs(
+  //                               cod_produto:
+  //                                   response.data[0]['Codigo'].toString(),
+  //                               qtd: 24, //int.parse(_qtdPecaController.text),
+  //                               desc: response.data[0]['Descricao'].toString(),
+  //                               numOs: "produtosList1[0].numOs",
+  //                               codOs: produtosList1[0].codOs,
+  //                               funcionario: funcionarioDrop1,
+  //                               cliente: "produtosList1[0].cliente",
+  //                               status: 'produtosList1[0].status'));
+  //                           setState(() {});
+  //                         }
+
+  // }
 
   // LIST OF DROPDOWN MENU ITEMS;
   List<DropdownMenuItem> newFuncionariosList = [];
@@ -38,7 +77,7 @@ class _OSState extends State<OS> {
   Future loadFuncionarios() async {
     Response response;
     Dio dio = new Dio();
-    String url = 'http://192.168.15.5:8090/api/funcionarios';
+    String url = 'http://192.168.15.2:8090/api/funcionarios';
     response = await dio.post(url);
 
     FuncionariosList funcionariosList =
@@ -48,12 +87,11 @@ class _OSState extends State<OS> {
     funcionariosList.funcionarios.forEach((element) {
       newFuncionariosList.add(
         DropdownMenuItem(
-          child: Text(
-            '${element.nome}',
-            style: TextStyle(fontSize: 16),
-          ),
-          value: element.codigo,
-        ),
+            child: Text(
+              '${element.nome}',
+              style: TextStyle(fontSize: 16),
+            ),
+            value: [element.codigo, element.nome]),
       );
     });
     print(newFuncionariosList);
@@ -67,6 +105,9 @@ class _OSState extends State<OS> {
   final _numeroOsController = TextEditingController();
   final _codprodController = TextEditingController();
   final _codprodqtdController = TextEditingController();
+  final _qtdPecaController = TextEditingController();
+  final _qtdController = TextEditingController();
+  //final _codPecaController = TextEditingController();
 
   @override
   void initState() {
@@ -83,6 +124,7 @@ class _OSState extends State<OS> {
 
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(
           "OS  Nº  ${produtosList1.isEmpty ? " --- " : produtosList1[0].numOs}",
@@ -130,11 +172,12 @@ class _OSState extends State<OS> {
                                     Response response;
                                     Dio dio = new Dio();
                                     String url =
-                                        'http://192.168.15.5:8090/api/getOs';
+                                        'http://192.168.15.2:8090/api/getOs';
                                     // 'http://192.168.15.2:8090/api/getOs';
                                     response = await dio.post(url, data: {
                                       "numeroos": _numeroOsController.text
                                     });
+
                                     print(response.statusCode);
 
                                     if (response.data == "not_found") {
@@ -155,6 +198,7 @@ class _OSState extends State<OS> {
                                         produtosList1 = produtosList.produtos;
                                         print(produtosList1[0].desc);
                                         print(produtosList1[0].cod_produto);
+                                        osCod = produtosList.produtos[0].codOs;
                                       }
 
                                       setState(() {
@@ -184,7 +228,7 @@ class _OSState extends State<OS> {
             ),
             ListTile(
                 leading: Icon(Icons.person),
-                title: Text('Usuário'),
+                title: Text(operadorLogado),
                 onTap: () {}
                 //  async {
                 //   final prefs = await SharedPreferences.getInstance();
@@ -221,53 +265,47 @@ class _OSState extends State<OS> {
                           ),
                           overflow: TextOverflow.ellipsis),
                     ]),
-                    Row(
-                      children: [
-                        Text(
-                          "STATUS:  ${(produtosList1.isEmpty || produtosList1[0].status == null) ? " --- " : produtosList1[0].status}",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    )
+                    Row(children: [
+                      Text(
+                        "STATUS:  ${(produtosList1.isEmpty || produtosList1[0].status == null) ? " --- " : produtosList1[0].status}",
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ])
                   ],
                 )),
           ),
           Container(
             color: Colors.blue,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    flex: 2,
-                    child: Text("CÓDIGO",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      "QTD",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 2,
+                      child: Text("CÓDIGO",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis),
                     ),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: Text(
-                      "FUNCIONÁRIO",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: Text(
-                      "DESCRIÇÃO",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                    Expanded(
+                        flex: 1,
+                        child: Text(
+                          "QTD",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                    Expanded(
+                        flex: 4,
+                        child: Text(
+                          "FUNCIONÁRIO",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                    Expanded(
+                        flex: 4,
+                        child: Text(
+                          "DESCRIÇÃO",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                  ],
+                )),
           ),
           Divider(
             height: 5.0,
@@ -292,10 +330,7 @@ class _OSState extends State<OS> {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            //"2"
-                            produtosList1.isEmpty
-                                ? "data is empty"
-                                : produtosList1[index].qtd,
+                            produtosList1[index].qtd.toString(),
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -326,37 +361,134 @@ class _OSState extends State<OS> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    scrollable: true,
-                    title: Text('ADICIONAR PEÇA'),
-                    content: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Form(
-                        child: Column(
-                          children: <Widget>[
-                            TextFormField(
-                              controller: _codprodController,
-                              decoration: InputDecoration(
-                                icon: Icon(Icons.add),
-                              ),
-                            ),
-                            TextFormField(
-                              controller: _codprodqtdController,
-                              decoration: InputDecoration(
-                                icon: Icon(Icons.add),
-                              ),
-                            ),
-                          ],
+      // floatingActionButton: FloatingActionButton(
+      //     onPressed: () {
+      //       produtosList1.isEmpty || funcionarioDrop == null
+      //           ? BotToast.showText(
+      //               text: "ERRO: Campo OS ou usuário vazio",
+      //               clickClose: true,
+      //               backgroundColor: Colors.black26,
+      //               align: Alignment(0, 0))
+      //           //print("vazio")
+      //           : showDialog(
+      //               context: context,
+      //               builder: (BuildContext context) {
+      //                 return AlertDialog(
+      //                   scrollable: true,
+      //                   title: Text('ADICIONAR PEÇA'),
+      //                   content: Padding(
+      //                     padding: const EdgeInsets.all(8.0),
+      //                     child: Form(
+      //                       child: Column(
+      //                         children: <Widget>[
+      //                           TextFormField(
+      //                             controller: _codprodController,
+      //                             decoration: InputDecoration(
+      //                               icon: Icon(Icons.add),
+      //                             ),
+      //                           ),
+      //                           TextFormField(
+      //                             controller: _qtdPecaController,
+      //                             decoration: InputDecoration(
+      //                               icon: Icon(Icons.add),
+      //                             ),
+      //                           ),
+      //                         ],
+      //                       ),
+      //                     ),
+      //                   ),
+      //                   actions: [
+      //                     ElevatedButton(
+      //                       style: ElevatedButton.styleFrom(
+      //                         primary: Colors.blue,
+      //                         onPrimary: Colors.white,
+      //                         shape: RoundedRectangleBorder(
+      //                           borderRadius: BorderRadius.circular(32.0),
+      //                         ),
+      //                       ),
+      //                       child: Text("IR"),
+      //                       onPressed: () async {
+      //                         Response response;
+      //                         Dio dio = new Dio();
+      //                         String url =
+      //                             'http://6:8090/api/getPeca';
+      //                         response = await dio.post(url,
+      //                             data: {"codprod": _codprodController.text});
+      //                         print(response.statusCode);
+      //                         print(response.data);
+      //                         if (response.data == 'not_found') {
+      //                           BotToast.showText(
+      //                               text: "Peça não encontrada",
+      //                               clickClose: true,
+      //                               backgroundColor: Colors.black26,
+      //                               align: Alignment(0, 0));
+      //                         } else {
+      //                           produtosList1.add(new ProdutoOs(
+      //                               cod_produto:
+      //                                   response.data[0]['Codigo'].toString(),
+      //                               qtd: int.parse(_qtdPecaController.text),
+      //                               desc: response.data[0]['Descricao']
+      //                                   .toString(),
+      //                               numOs: "produtosList1[0].numOs",
+      //                               codOs: produtosList1[0].codOs,
+      //                               funcionario: funcionarioDrop,
+      //                               cliente: "produtosList1[0].cliente",
+      //                               status: 'produtosList1[0].status'));
+      //                           setState(() {
+      //                             Navigator.pop(context, true);
+      //                           });
+      //                         }
+      //                       },
+      //                     ),
+      //                   ],
+      //                 );
+      //               },
+      //             );
+      //     },
+      //     child: Icon(Icons.add)),
+      bottomNavigationBar: BottomAppBar(
+        child: Form(
+          child: Container(
+            height: 180.0,
+            color: Colors.blue[400],
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView(children: [
+                Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                  ),
+                  child: DropdownButtonFormField(
+                    hint: Text('Choose '),
+                    onChanged: (value) {
+                      print("VALUE DO DROPDOWN $value");
+                      funcionarioDrop = value[0];
+                      funcionarioDrop1 = value[1];
+                      print(funcionarioDrop);
+                      // var funcionarioDrop = value;
+                      // here you can pass it to a variable for example
+                    },
+                    items: newFuncionariosList,
+                  ),
+                ),
+                Divider(
+                  height: 6.0,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: _codprodController,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.add),
                         ),
                       ),
                     ),
-                    actions: [
-                      ElevatedButton(
+                    Expanded(
+                      flex: 1,
+                      child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blue,
                           onPrimary: Colors.white,
@@ -368,59 +500,156 @@ class _OSState extends State<OS> {
                         onPressed: () async {
                           Response response;
                           Dio dio = new Dio();
-                          String url = 'http://192.168.15.5:8090/api/getPeca';
+                          String url = 'http://192.168.15.2:8090/api/getPeca';
                           response = await dio.post(url,
                               data: {"codprod": _codprodController.text});
                           print(response.statusCode);
                           print(response.data);
+                          if (response.data == 'not_found') {
+                            BotToast.showText(
+                                text: "Peça não encontrada",
+                                clickClose: true,
+                                backgroundColor: Colors.black26,
+                                align: Alignment(0, 0));
+                          } else {
+                            produtoDesc =
+                                response.data[0]['Descricao'].toString();
+                            produtoCod = response.data[0]['Codigo'].toString();
+                            // produtosList1.add(new ProdutoOs(
+                            //     cod_produto:
+                            //         response.data[0]['Codigo'].toString(),
+                            //     qtd: 24, //int.parse(_qtdPecaController.text),
+                            //     desc: response.data[0]['Descricao'].toString(),
+                            //     numOs: "produtosList1[0].numOs",
+                            //     codOs: produtosList1[0].codOs,
+                            //     funcionario: funcionarioDrop1,
+                            //     cliente: "produtosList1[0].cliente",
+                            //     status: 'produtosList1[0].status')
+                            //  );
+                            //adiciona na lista local
+                            setState(() {});
+                          }
                         },
                       ),
-                    ],
-                  );
-                });
-          },
-          child: Icon(Icons.add)),
-      bottomNavigationBar: BottomAppBar(
-        child: Container(
-          height: 140.0,
-          color: Colors.blue[400],
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(children: [
-              Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
+                    )
+                  ],
                 ),
+                Divider(
+                  height: 8.0,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                        flex: 6,
+                        child: Text(produtoDesc == null ? "- - -" : produtoDesc,
+                            overflow: TextOverflow.ellipsis)),
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        controller: _qtdController,
+                        decoration: InputDecoration(hintText: "qtd"),
+                      ),
+                    ),
+                    Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                            child: Icon(Icons.add),
+                            onPressed: () async {
+                              Response response;
+                              Dio dio = new Dio();
+                              String url =
+                                  'http://192.168.15.2:8090/api/addProduto';
+                              response = await dio.post(url, data: {
+                                "CodOs": osCod,
+                                "CodProduto": produtoCod,
+                                "Qtde": _qtdController.text,
+                                "ValorUnitario": 1.00,
+                                "CodFuncionario": funcionarioDrop,
+                                "Sub": 1.00,
+                                "Tipo": "A",
+                                "Operador": operadorLogado,
+                                "valorantigo": 1.00,
+                                "Custounit": 1.00
+                              });
+                              print(response.statusCode);
+                              print(response.data);
 
-// hot restart please
-                child: Container(
-                  height: 70,
-                  child: DropdownButtonFormField(
-                    hint: Text('Choose '),
-                    onChanged: (value) {
-                      print(value);
-                      // here you can pass it to a variable for example
-                    },
-                    items: newFuncionariosList,
-                  ),
-                ),
-              ),
-              Container(
-                  color: Colors.red,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      Response response;
-                      Dio dio = new Dio();
-                      String url = 'http://192.168.15.5:8090/api/funcionarios';
-                      // 'http://192.168.15.2:8090/api/getOs';
-                      response = await dio.post(url);
-                      print(response.statusCode);
-                      print(response.data);
-                    },
-                    child: (Text("Teste")),
-                  )),
-            ]),
+                              Response response1;
+                              Dio dio1 = new Dio();
+                              String url1 =
+                                  'http://192.168.15.2:8090/api/getOs';
+                              response1 = await dio1.post(url1,
+                                  data: {"numeroos": _numeroOsController.text});
+
+                              Future loadProdutos() async {
+                                ProdutosList produtosList =
+                                    ProdutosList.fromJson(response1.data);
+                                produtosList1 = produtosList.produtos;
+                              }
+
+                              loadProdutos();
+
+                              setState(() {
+                                loadProdutos();
+                              });
+
+                              //funfou:::
+                              // String url1 =
+                              //     'http://192.168.15.2:8090/api/getOs';
+                              // response = await dio.post(url1,
+                              //     data: {"numeroos": _numeroOsController.text});
+
+                              // ProdutosList produtosList =
+                              //     ProdutosList.fromJson(response.data);
+
+                              // osCod = produtosList.produtos[0].codOs;
+
+                              // setState(() {});
+                              // if (response.data == 'not_found') {
+                              //   BotToast.showText(
+                              //       text: "Peça não encontrada",
+                              //       clickClose: true,
+                              //       backgroundColor: Colors.black26,
+                              //       align: Alignment(0, 0));
+                              // } else {
+                              //   produtoDesc =
+                              //       response.data[0]['Descricao'].toString();
+                              //   produtosList1.add(new ProdutoOs(
+                              //       cod_produto:
+                              //           response.data[0]['Codigo'].toString(),
+                              //       qtd: response.data[0][
+                              //           'Qtd'], //int.parse(_qtdPecaController.text),
+                              //       desc: response.data[0]['Descricao']
+                              //           .toString(),
+                              //       numOs: "produtosList1[0].numOs",
+                              //       codOs: produtosList1[0].codOs,
+                              //       funcionario: funcionarioDrop1,
+                              //       cliente: "produtosList1[0].cliente",
+                              //       status: 'produtosList1[0].status'));
+                              //   setState(() {});
+                              // }
+                              // setState(() {});
+                            }))
+                  ],
+                )
+                // Container(
+                //   color: Colors.red,
+                //   child: ElevatedButton(
+                //     onPressed: () async {
+                //       Response response;
+                //       Dio dio = new Dio();
+                //       String url = 'http://192.168.15.6:8090/api/funcionarios';
+                //       // 'http://192.168.15.2:8090/api/getOs';
+                //       response = await dio.post(url);
+                //       print(response.statusCode);
+                //       print(response.data);
+                //     },
+                //     child: (Text("Teste")),
+                //   ),
+                // ),
+              ]),
+            ),
           ),
         ),
       ),

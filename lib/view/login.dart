@@ -2,6 +2,7 @@ import 'package:app_novo/view/telaos.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Login extends StatefulWidget {
@@ -28,6 +29,7 @@ class _LoginState extends State<Login> {
             padding: EdgeInsets.all(10.0),
             children: [
               TextFormField(
+                inputFormatters: [UpperCaseTextFormatter()],
                 autocorrect: false,
                 controller: _operadorController,
                 decoration: InputDecoration(hintText: "Usuário"),
@@ -41,6 +43,7 @@ class _LoginState extends State<Login> {
                 height: 20.0,
               ),
               TextFormField(
+                inputFormatters: [UpperCaseTextFormatter()],
                 controller: _senhaController,
                 decoration: InputDecoration(hintText: "Senha"),
                 obscureText: true,
@@ -76,18 +79,13 @@ class _LoginState extends State<Login> {
                         Response response;
                         Dio dio = new Dio();
 
-                        String url = 'http://192.168.15.5:8090/api/Login1';
+                        String url = 'http://192.168.15.2:8090/api/Login1';
                         //'http://192.168.15.2:8090/api/Login1';
                         // String url = 'https://webhook.site/ede21526-bec6-4089-b18d-cd4941184db9';
                         // String url = 'http://localhost:8090/api/Login1';
                         response = await dio.post(url, data: {
-                          //_usuarioController.text
-                          //    .replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
-                          //  "operador": "MASTER",
-                          //   "senha": "TERA0205",
                           "operador": _operadorController.text,
                           "senha": _senhaController.text
-                          //_senhaController.text
                         });
 
                         print(response.data.toString());
@@ -123,6 +121,17 @@ class _LoginState extends State<Login> {
                   ))
             ],
           )),
+    );
+  }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: newValue.text?.toUpperCase(),
+      selection: newValue.selection,
     );
   }
 }
