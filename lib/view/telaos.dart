@@ -38,39 +38,6 @@ class _OSState extends State<OS> {
   var osCod;
   var produtoCod;
 
-  //  getPeca(){
-  //            Response response;
-  //                         Dio dio = new Dio();
-  //                         String url = 'http://192.168.15.2:8090/api/getPeca';
-  //                         response = await dio.post(url,
-  //                             data: {"codprod": _codprodController.text});
-  //                         print(response.statusCode);
-  //                         print(response.data);
-  //                         if (response.data == 'not_found') {
-  //                           BotToast.showText(
-  //                               text: "Peça não encontrada",
-  //                               clickClose: true,
-  //                               backgroundColor: Colors.black26,
-  //                               align: Alignment(0, 0));
-  //                         } else {
-  //                           produtoDesc =
-  //                               response.data[0]['Descricao'].toString();
-  //                           produtoCod = response.data[0]['Codigo'].toString();
-  //                           produtosList1.add(new ProdutoOs(
-  //                               cod_produto:
-  //                                   response.data[0]['Codigo'].toString(),
-  //                               qtd: 24, //int.parse(_qtdPecaController.text),
-  //                               desc: response.data[0]['Descricao'].toString(),
-  //                               numOs: "produtosList1[0].numOs",
-  //                               codOs: produtosList1[0].codOs,
-  //                               funcionario: funcionarioDrop1,
-  //                               cliente: "produtosList1[0].cliente",
-  //                               status: 'produtosList1[0].status'));
-  //                           setState(() {});
-  //                         }
-
-  // }
-
   // LIST OF DROPDOWN MENU ITEMS;
   List<DropdownMenuItem> newFuncionariosList = [];
 
@@ -361,91 +328,6 @@ class _OSState extends State<OS> {
           )
         ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //     onPressed: () {
-      //       produtosList1.isEmpty || funcionarioDrop == null
-      //           ? BotToast.showText(
-      //               text: "ERRO: Campo OS ou usuário vazio",
-      //               clickClose: true,
-      //               backgroundColor: Colors.black26,
-      //               align: Alignment(0, 0))
-      //           //print("vazio")
-      //           : showDialog(
-      //               context: context,
-      //               builder: (BuildContext context) {
-      //                 return AlertDialog(
-      //                   scrollable: true,
-      //                   title: Text('ADICIONAR PEÇA'),
-      //                   content: Padding(
-      //                     padding: const EdgeInsets.all(8.0),
-      //                     child: Form(
-      //                       child: Column(
-      //                         children: <Widget>[
-      //                           TextFormField(
-      //                             controller: _codprodController,
-      //                             decoration: InputDecoration(
-      //                               icon: Icon(Icons.add),
-      //                             ),
-      //                           ),
-      //                           TextFormField(
-      //                             controller: _qtdPecaController,
-      //                             decoration: InputDecoration(
-      //                               icon: Icon(Icons.add),
-      //                             ),
-      //                           ),
-      //                         ],
-      //                       ),
-      //                     ),
-      //                   ),
-      //                   actions: [
-      //                     ElevatedButton(
-      //                       style: ElevatedButton.styleFrom(
-      //                         primary: Colors.blue,
-      //                         onPrimary: Colors.white,
-      //                         shape: RoundedRectangleBorder(
-      //                           borderRadius: BorderRadius.circular(32.0),
-      //                         ),
-      //                       ),
-      //                       child: Text("IR"),
-      //                       onPressed: () async {
-      //                         Response response;
-      //                         Dio dio = new Dio();
-      //                         String url =
-      //                             'http://6:8090/api/getPeca';
-      //                         response = await dio.post(url,
-      //                             data: {"codprod": _codprodController.text});
-      //                         print(response.statusCode);
-      //                         print(response.data);
-      //                         if (response.data == 'not_found') {
-      //                           BotToast.showText(
-      //                               text: "Peça não encontrada",
-      //                               clickClose: true,
-      //                               backgroundColor: Colors.black26,
-      //                               align: Alignment(0, 0));
-      //                         } else {
-      //                           produtosList1.add(new ProdutoOs(
-      //                               cod_produto:
-      //                                   response.data[0]['Codigo'].toString(),
-      //                               qtd: int.parse(_qtdPecaController.text),
-      //                               desc: response.data[0]['Descricao']
-      //                                   .toString(),
-      //                               numOs: "produtosList1[0].numOs",
-      //                               codOs: produtosList1[0].codOs,
-      //                               funcionario: funcionarioDrop,
-      //                               cliente: "produtosList1[0].cliente",
-      //                               status: 'produtosList1[0].status'));
-      //                           setState(() {
-      //                             Navigator.pop(context, true);
-      //                           });
-      //                         }
-      //                       },
-      //                     ),
-      //                   ],
-      //                 );
-      //               },
-      //             );
-      //     },
-      //     child: Icon(Icons.add)),
       bottomNavigationBar: BottomAppBar(
         child: Form(
           child: Container(
@@ -593,61 +475,9 @@ class _OSState extends State<OS> {
                               setState(() {
                                 loadProdutos();
                               });
-
-                              //funfou:::
-                              // String url1 =
-                              //     'http://192.168.15.2:8090/api/getOs';
-                              // response = await dio.post(url1,
-                              //     data: {"numeroos": _numeroOsController.text});
-
-                              // ProdutosList produtosList =
-                              //     ProdutosList.fromJson(response.data);
-
-                              // osCod = produtosList.produtos[0].codOs;
-
-                              // setState(() {});
-                              // if (response.data == 'not_found') {
-                              //   BotToast.showText(
-                              //       text: "Peça não encontrada",
-                              //       clickClose: true,
-                              //       backgroundColor: Colors.black26,
-                              //       align: Alignment(0, 0));
-                              // } else {
-                              //   produtoDesc =
-                              //       response.data[0]['Descricao'].toString();
-                              //   produtosList1.add(new ProdutoOs(
-                              //       cod_produto:
-                              //           response.data[0]['Codigo'].toString(),
-                              //       qtd: response.data[0][
-                              //           'Qtd'], //int.parse(_qtdPecaController.text),
-                              //       desc: response.data[0]['Descricao']
-                              //           .toString(),
-                              //       numOs: "produtosList1[0].numOs",
-                              //       codOs: produtosList1[0].codOs,
-                              //       funcionario: funcionarioDrop1,
-                              //       cliente: "produtosList1[0].cliente",
-                              //       status: 'produtosList1[0].status'));
-                              //   setState(() {});
-                              // }
-                              // setState(() {});
                             }))
                   ],
                 )
-                // Container(
-                //   color: Colors.red,
-                //   child: ElevatedButton(
-                //     onPressed: () async {
-                //       Response response;
-                //       Dio dio = new Dio();
-                //       String url = 'http://192.168.15.6:8090/api/funcionarios';
-                //       // 'http://192.168.15.2:8090/api/getOs';
-                //       response = await dio.post(url);
-                //       print(response.statusCode);
-                //       print(response.data);
-                //     },
-                //     child: (Text("Teste")),
-                //   ),
-                // ),
               ]),
             ),
           ),
