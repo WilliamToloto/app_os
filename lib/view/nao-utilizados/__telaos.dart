@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:app_novo/model/dropdownitens.dart';
 import 'package:app_novo/model/funcionarios.dart';
 import 'package:app_novo/model/produtoOs.dart';
 import 'package:bot_toast/bot_toast.dart';

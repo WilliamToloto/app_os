@@ -330,7 +330,7 @@ class _OSState extends State<OS> {
       bottomNavigationBar: BottomAppBar(
         child: Form(
           child: Container(
-            height: 180.0 + MediaQuery.of(context).viewInsets.bottom,
+            height: 180.0,
             color: Colors.blue[400],
             child: Padding(
               padding: const EdgeInsets.all(8.0),
@@ -455,32 +455,6 @@ class _OSState extends State<OS> {
                               });
                               print(response.statusCode);
                               print(response.data);
-                              //print(response.data['error']['originalError']
-                              //      ['info']['message']);
-                              //pega erro de chave primária
-                              // var respostajson = (response.data.toString());
-                              //  print(respostajson[5]);
-                              //['code'].toString());
-
-                              if (response.data == "Ok!") {
-                                print("OK caraiiii");
-                                Response response1;
-                                Dio dio = new Dio();
-                                String url =
-                                    'http://192.168.15.2:8090/api/updateCusto';
-                                response1 = await dio.post(url, data: {
-                                  "CodOs": osCod,
-                                  "CodProduto": produtoCod
-                                });
-                                print(response1.data);
-                              } else if (response.data['error']['originalError']
-                                      ['info']['number'] ==
-                                  2627) {
-                                print("ERRO DE CHAVE PRIMÁRIA");
-                                //Faz o update
-                              } else {
-                                print("erro");
-                              }
 
                               Response response1;
                               Dio dio1 = new Dio();

@@ -18,7 +18,7 @@ class ProdutosList {
 class ProdutoOs {
   // ignore: non_constant_identifier_names
   final String cod_produto;
-  final int qtd;
+  final String qtd;
   final String desc;
   final String numOs;
   final int codOs;
@@ -40,7 +40,7 @@ class ProdutoOs {
   factory ProdutoOs.fromJson(Map<String, dynamic> json) {
     return new ProdutoOs(
         cod_produto: json['Codigo_Produto'].toString(),
-        qtd: json['Qtde'],
+        qtd: json['Qtde'].toString(),
         desc: json['Descricao'],
         numOs: json['Numero_da_OS'],
         codOs: json['CodOS'],
