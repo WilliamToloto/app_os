@@ -58,6 +58,12 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(
               'Splash screen (verifica se o usuário está logado)',
             ),
+            SizedBox(
+              height: 40.0,
+              child: RaisedButton(
+                onPressed: () {},
+              ),
+            )
           ],
         ),
       ),

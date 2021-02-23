@@ -90,25 +90,45 @@ class _LoginState extends State<Login> {
 
                         print(response.data.toString());
                         var resposta = response.data.toString();
-                        print(resposta);
 
-                        if (resposta == "ok") {
+                        if (resposta == "not_found") {
                           //Salva o usuário logado
-                          final prefs = await SharedPreferences.getInstance();
-                          final key = 'operador';
-                          final value = _operadorController.text;
-                          prefs.setString(key, value);
-                          print('saved $value');
-                          ////////FIM
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (context) => OS()));
-                        } else {
                           BotToast.showText(
                               text: "DADOS INCORRETOS",
                               backButtonBehavior: BackButtonBehavior.close,
                               clickClose: true,
                               backgroundColor: Colors.black26);
+                        } else {
+                          final prefs = await SharedPreferences.getInstance();
+                          final prefs1 = await SharedPreferences.getInstance();
+                          final key = 'operador';
+                          final value = _operadorController.text;
+                          final key1 = 'nivel';
+                          final value1 = resposta;
+
+                          prefs.setString(key, value);
+                          prefs1.setString(key1, value1);
+                          print('saved $value');
+                          Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (context) => OS()));
                         }
+                        // if (resposta == "ok") {
+                        //   //Salva o usuário logado
+                        //   final prefs = await SharedPreferences.getInstance();
+                        //   final key = 'operador';
+                        //   final value = _operadorController.text;
+                        //   prefs.setString(key, value);
+                        //   print('saved $value');
+                        //   ////////FIM
+                        //   Navigator.of(context).pushReplacement(
+                        //       MaterialPageRoute(builder: (context) => OS()));
+                        // } else {
+                        //   BotToast.showText(
+                        //       text: "DADOS INCORRETOS",
+                        //       backButtonBehavior: BackButtonBehavior.close,
+                        //       clickClose: true,
+                        //       backgroundColor: Colors.black26);
+                        // }
                       }
                     },
                     style: ElevatedButton.styleFrom(

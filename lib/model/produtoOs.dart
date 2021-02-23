@@ -18,6 +18,7 @@ class ProdutosList {
 class ProdutoOs {
   // ignore: non_constant_identifier_names
   final String cod_produto;
+  final String codProd;
   final String qtd;
   final String desc;
   final String numOs;
@@ -25,28 +26,33 @@ class ProdutoOs {
   final String funcionario;
   final String cliente;
   final String status;
+  final String dataPrevisao;
 
   // ignore: non_constant_identifier_names
   ProdutoOs(
       {this.cod_produto,
+      this.codProd,
       this.qtd,
       this.desc,
       this.numOs,
       this.codOs,
       this.funcionario,
       this.cliente,
-      this.status});
+      this.status,
+      this.dataPrevisao});
 
   factory ProdutoOs.fromJson(Map<String, dynamic> json) {
     return new ProdutoOs(
         cod_produto: json['Codigo_Produto'].toString(),
+        codProd: json['CodProd'],
         qtd: json['Qtde'].toString(),
         desc: json['Descricao'],
         numOs: json['Numero_da_OS'],
         codOs: json['CodOS'],
         funcionario: json['Nomefuncionario'],
         cliente: json['Cliente'],
-        status: json['status']);
+        status: json['status'],
+        dataPrevisao: json['DataPrevisao'].toString());
   }
 }
 

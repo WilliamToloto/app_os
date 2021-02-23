@@ -14,14 +14,20 @@ class OS extends StatefulWidget {
 }
 
 String operadorLogado = "";
+String nivelUsuario = "";
 
 class _OSState extends State<OS> {
   static _read() async {
     final prefs = await SharedPreferences.getInstance();
+    final prefs1 = await SharedPreferences.getInstance();
     final key = 'operador';
+    final key1 = 'nivel';
     final value = prefs.getString(key);
+    final value1 = prefs1.getString(key1);
     print('saved tester $value');
+    print('nivel: $value1');
     operadorLogado = value;
+    nivelUsuario = value1;
     return operadorLogado;
   }
 
@@ -36,6 +42,7 @@ class _OSState extends State<OS> {
   var produtoDesc;
   var osCod;
   var produtoCod;
+  var dataExpirada;
 
   // LIST OF DROPDOWN MENU ITEMS;
   List<DropdownMenuItem> newFuncionariosList = [];
@@ -153,9 +160,6 @@ class _OSState extends State<OS> {
                                           backgroundColor: Colors.black26);
                                     } else {
                                       Future loadProdutos() async {
-                                        //  String jsonProdutos = response.data;
-                                        //     final jsonResponse =
-                                        //      json.decode(response.data);
                                         ProdutosList produtosList =
                                             ProdutosList.fromJson(
                                                 response.data);
@@ -164,12 +168,34 @@ class _OSState extends State<OS> {
                                         produtosList1 = produtosList.produtos;
                                         print(produtosList1[0].desc);
                                         print(produtosList1[0].cod_produto);
+                                        print(produtosList1[0].codProd);
+
+                                        String dataPrevisao = produtosList
+                                            .produtos[0].dataPrevisao;
+                                        DateTime.parse(dataPrevisao);
+                                        print(dataPrevisao);
+                                        if (DateTime.now().isBefore(
+                                            DateTime.parse(dataPrevisao))) {
+                                          print("eh menor");
+                                          dataExpirada = "n";
+                                        } else {
+                                          dataExpirada = "s";
+                                        }
                                         osCod = produtosList.produtos[0].codOs;
                                       }
 
                                       setState(() {
                                         loadProdutos();
                                         Navigator.pop(context, true);
+                                        if (dataExpirada == "s") {
+                                          BotToast.showText(
+                                              text:
+                                                  "DATA DE PREVISÃO JÁ ATINGIDA",
+                                              align: Alignment(0, 0),
+                                              clickClose: true,
+                                              contentColor: Colors.red,
+                                              backgroundColor: Colors.black26);
+                                        }
                                       });
                                     }
                                   }
@@ -208,7 +234,10 @@ class _OSState extends State<OS> {
                 title: Text('SAIR'),
                 onTap: () async {
                   final prefs = await SharedPreferences.getInstance();
+                  final prefs1 = await SharedPreferences.getInstance();
                   prefs.clear();
+                  prefs1.clear();
+
                   setState(() {
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => Login()));
@@ -289,7 +318,8 @@ class _OSState extends State<OS> {
                           child: Text(
                             produtosList1.isEmpty
                                 ? "data is empty"
-                                : produtosList1[index].cod_produto,
+                                : produtosList1[index].codProd,
+                            // : produtosList1[index].cod_produto,
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -437,67 +467,91 @@ class _OSState extends State<OS> {
                         child: ElevatedButton(
                             child: Icon(Icons.add),
                             onPressed: () async {
-                              Response response;
-                              Dio dio = new Dio();
-                              String url =
-                                  'http://192.168.15.2:8090/api/addProduto';
-                              response = await dio.post(url, data: {
-                                "CodOs": osCod,
-                                "CodProduto": produtoCod,
-                                "Qtde": _qtdController.text,
-                                "ValorUnitario": 1.00,
-                                "CodFuncionario": funcionarioDrop,
-                                "Sub": 1.00,
-                                "Tipo": "A",
-                                "Operador": operadorLogado,
-                                "valorantigo": 1.00,
-                                "Custounit": 1.00
-                              });
-                              print(response.statusCode);
-                              print(response.data);
-                              //print(response.data['error']['originalError']
-                              //      ['info']['message']);
-                              //pega erro de chave primária
-                              // var respostajson = (response.data.toString());
-                              //  print(respostajson[5]);
-                              //['code'].toString());
-
-                              if (response.data == "Ok!") {
-                                print("OK caraiiii");
-                                Response response1;
+                              if ((nivelUsuario == "MASTER" ||
+                                      dataExpirada == "n") &&
+                                  (produtosList1[0].status != "Fechado")) {
+                                Response response;
                                 Dio dio = new Dio();
                                 String url =
-                                    'http://192.168.15.2:8090/api/updateCusto';
-                                response1 = await dio.post(url, data: {
+                                    'http://192.168.15.2:8090/api/addProduto';
+                                response = await dio.post(url, data: {
                                   "CodOs": osCod,
-                                  "CodProduto": produtoCod
+                                  "CodProduto": produtoCod,
+                                  "Qtde": _qtdController.text,
+                                  "ValorUnitario": 1.00,
+                                  "CodFuncionario": funcionarioDrop,
+                                  "Sub": 1.00,
+                                  "Tipo": "A",
+                                  "Operador": operadorLogado,
+                                  "valorantigo": 1.00,
+                                  "Custounit": 1.00
                                 });
-                                print(response1.data);
-                              } else if (response.data['error']['originalError']
-                                      ['info']['number'] ==
-                                  2627) {
-                                print("ERRO DE CHAVE PRIMÁRIA");
-                                //Faz o update
+                                print(response.statusCode);
+                                print(response.data);
+                                //print(response.data['error']['originalError']
+                                //      ['info']['message']);
+                                //pega erro de chave primária
+                                // var respostajson = (response.data.toString());
+                                //  print(respostajson[5]);
+                                //['code'].toString());
+
+                                if (response.data == "Ok!") {
+                                  print("OK caraiiii");
+                                  Response response1;
+                                  Dio dio = new Dio();
+                                  String url =
+                                      'http://192.168.15.2:8090/api/updateCusto';
+                                  response1 = await dio.post(url, data: {
+                                    "CodOs": osCod,
+                                    "CodProduto": produtoCod
+                                  });
+                                  print(response1.data);
+                                } else if (response.data['error']
+                                        ['originalError']['info']['number'] ==
+                                    2627) {
+                                  print("ERRO DE CHAVE PRIMÁRIA");
+                                  //Faz o update
+                                  Response response;
+                                  Dio dio = new Dio();
+                                  String url =
+                                      'http://192.168.15.2:8090/api/updateProduto';
+                                  response = await dio.post(url, data: {
+                                    "CodOs": osCod,
+                                    "CodProduto": produtoCod,
+                                    "Qtde": _qtdController.text,
+                                    "CodFuncionario": funcionarioDrop,
+                                    "Operador": operadorLogado,
+                                  });
+                                  print(response.data);
+                                } else {
+                                  print("erro");
+                                }
+
+                                Response response1;
+                                Dio dio1 = new Dio();
+                                String url1 =
+                                    'http://192.168.15.2:8090/api/getOs';
+                                response1 = await dio1.post(url1, data: {
+                                  "numeroos": _numeroOsController.text
+                                });
+
+                                Future loadProdutos() async {
+                                  ProdutosList produtosList =
+                                      ProdutosList.fromJson(response1.data);
+                                  produtosList1 = produtosList.produtos;
+                                }
+
+                                setState(() {
+                                  loadProdutos();
+                                });
                               } else {
-                                print("erro");
+                                BotToast.showText(
+                                    text: "Não é possível realizar alterações",
+                                    align: Alignment(0, 0),
+                                    clickClose: true,
+                                    contentColor: Colors.red,
+                                    backgroundColor: Colors.black26);
                               }
-
-                              Response response1;
-                              Dio dio1 = new Dio();
-                              String url1 =
-                                  'http://192.168.15.2:8090/api/getOs';
-                              response1 = await dio1.post(url1,
-                                  data: {"numeroos": _numeroOsController.text});
-
-                              Future loadProdutos() async {
-                                ProdutosList produtosList =
-                                    ProdutosList.fromJson(response1.data);
-                                produtosList1 = produtosList.produtos;
-                              }
-
-                              setState(() {
-                                loadProdutos();
-                              });
                             }))
                   ],
                 )
