@@ -99,15 +99,22 @@ class _LoginState extends State<Login> {
                               clickClose: true,
                               backgroundColor: Colors.black26);
                         } else {
+                          print(response.data['Nivel']);
+                          print(response.data['removeapp']);
+                          //  print(response.data['error']['originalError']
+                          //      ['info']['message']);
                           final prefs = await SharedPreferences.getInstance();
                           final prefs1 = await SharedPreferences.getInstance();
                           final key = 'operador';
                           final value = _operadorController.text;
                           final key1 = 'nivel';
-                          final value1 = resposta;
+                          final value1 = response.data['Nivel'];
+                          final key2 = 'removeapp';
+                          final value2 = response.data['removeapp'].toString();
 
                           prefs.setString(key, value);
                           prefs1.setString(key1, value1);
+                          prefs1.setString(key2, value2);
                           print('saved $value');
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (context) => OS()));

@@ -1,5 +1,6 @@
 import 'package:app_novo/view/login.dart';
-import 'package:app_novo/view/nao-utilizados/os%20copy.dart';
+import 'package:app_novo/view/telaos.dart';
+//import 'package:app_novo/view/nao-utilizados/os%20copy.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,15 +22,12 @@ class _SplashScreenState extends State<SplashScreen> {
     sharedPreferences = await SharedPreferences.getInstance();
     final key = 'operador';
     loginData = sharedPreferences.getString(key);
-    if ((sharedPreferences.containsKey('operador') == false) ||
-        loginData == null ||
-        loginData.isEmpty) {
+    print(loginData);
+    if (loginData == null || loginData.isEmpty) {
       Future.delayed(const Duration(milliseconds: 1000), () {
         setState(() {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Login()),
-          );
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => Login()));
         });
       });
     } else {
@@ -44,17 +42,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+    return Center(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
           CircularProgressIndicator(
             strokeWidth: 2.0,
             valueColor: AlwaysStoppedAnimation(Colors.green),
-          ),
-        ],
-      )),
-    );
+          )
+        ]));
   }
 }

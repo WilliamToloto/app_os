@@ -23,6 +23,7 @@ class ProdutoOs {
   final String desc;
   final String numOs;
   final int codOs;
+  final int codFuncionario;
   final String funcionario;
   final String cliente;
   final String status;
@@ -36,6 +37,7 @@ class ProdutoOs {
       this.desc,
       this.numOs,
       this.codOs,
+      this.codFuncionario,
       this.funcionario,
       this.cliente,
       this.status,
@@ -49,6 +51,7 @@ class ProdutoOs {
         desc: json['Descricao'],
         numOs: json['Numero_da_OS'],
         codOs: json['CodOS'],
+        codFuncionario: json['CodFuncionario'],
         funcionario: json['Nomefuncionario'],
         cliente: json['Cliente'],
         status: json['status'],

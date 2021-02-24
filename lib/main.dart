@@ -1,4 +1,5 @@
 import 'package:app_novo/view/login.dart';
+import 'package:app_novo/view/splashscreen.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 
@@ -36,37 +37,38 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              height: 40.0,
-              child: RaisedButton(
-                onPressed: () => Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => Login())),
-                child: Text("Ir para Login"),
-              ),
-            ),
-            SizedBox(
-              height: 20.0,
-            ),
-            Text(
-              'Splash screen (verifica se o usuário está logado)',
-            ),
-            SizedBox(
-              height: 40.0,
-              child: RaisedButton(
-                onPressed: () {},
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+    return SplashScreen();
+    // Scaffold(
+    //   appBar: AppBar(
+    //     title: Text(widget.title),
+    //   ),
+    //   body: Center(
+    //     child: Column(
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       children: <Widget>[
+    //         SizedBox(
+    //           height: 40.0,
+    //           child: RaisedButton(
+    //             onPressed: () => Navigator.of(context).pushReplacement(
+    //                 MaterialPageRoute(builder: (context) => Login())),
+    //             child: Text("Ir para Login"),
+    //           ),
+    //         ),
+    //         SizedBox(
+    //           height: 20.0,
+    //         ),
+    //         Text(
+    //           'Splash screen (verifica se o usuário está logado)',
+    //         ),
+    //         SizedBox(
+    //           height: 40.0,
+    //           child: RaisedButton(
+    //             onPressed: () {},
+    //           ),
+    //         )
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 }
