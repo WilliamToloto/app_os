@@ -1,6 +1,6 @@
 import 'package:app_novo/model/produtoOs.dart';
 
-Future loadProdutos1(ProdutosList produtosList, response, produtosList1,
+Future loadProdutos1(response, produtosList1,
     dataExpirada, osCod) async {
   ProdutosList produtosList = ProdutosList.fromJson(response.data);
   print(produtosList.produtos[0].qtd);

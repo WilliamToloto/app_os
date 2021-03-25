@@ -1,4 +1,5 @@
-import 'dart:convert';
+//import 'dart:convert';
+import 'package:app_novo/control/func.dart';
 import 'package:app_novo/model/funcionarios.dart';
 import 'package:app_novo/model/produtoOs.dart';
 import 'package:app_novo/view/login.dart';
@@ -17,6 +18,7 @@ class OS extends StatefulWidget {
 String operadorLogado = "";
 String nivelUsuario = "";
 String removeapp = "";
+String listaVazia = "";
 
 class _OSState extends State<OS> {
   static _read() async {
@@ -40,7 +42,6 @@ class _OSState extends State<OS> {
 
   var funcioa1;
   List produtosList1 = <ProdutoOs>[];
-  int _value = 1;
   List funcionariosList = <Funcionarios>[];
   Funcionarios funcionarios;
   ProdutoOs produtoOs;
@@ -50,6 +51,8 @@ class _OSState extends State<OS> {
   var osCod;
   var produtoCod;
   var dataExpirada;
+  //static const linkUrl = "http://192.168.1.66:8090/api/";
+  static const linkUrl = "http://192.168.0.142:8090/api/";
 
   // LIST OF DROPDOWN MENU ITEMS;
   List<DropdownMenuItem> newFuncionariosList = [];
@@ -57,7 +60,7 @@ class _OSState extends State<OS> {
   Future loadFuncionarios() async {
     Response response;
     Dio dio = new Dio();
-    String url = 'http://192.168.15.2:8090/api/funcionarios';
+    String url = linkUrl + 'funcionarios';
     response = await dio.post(url);
 
     FuncionariosList funcionariosList =
@@ -84,8 +87,6 @@ class _OSState extends State<OS> {
 
   final _numeroOsController = TextEditingController();
   final _codprodController = TextEditingController();
-  final _codprodqtdController = TextEditingController();
-  final _qtdPecaController = TextEditingController();
   final _qtdController = TextEditingController();
   //final _codPecaController = TextEditingController();
 
@@ -106,118 +107,172 @@ class _OSState extends State<OS> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: Text(
-          "OS  Nº  ${produtosList1.isEmpty ? " --- " : produtosList1[0].numOs}",
-        ),
-        //+ produtosList1[0].cod_produto),
-        actions: <Widget>[
-          Padding(
-              padding: EdgeInsets.only(right: 20.0),
-              child: GestureDetector(
-                onTap: () {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                            scrollable: true,
-                            title: Text('BUSCAR OS'),
-                            content: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Form(
-                                child: TextFormField(
-                                  controller: _numeroOsController,
-                                  decoration: InputDecoration(
-                                    icon: Icon(Icons.search),
+          title: Text(
+            "OS  Nº  ${produtosList1.isEmpty ? " --- " : produtosList1[0].numOs}",
+          ),
+          //+ produtosList1[0].cod_produto),
+          actions: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(right: 20.0),
+                child: GestureDetector(
+                  onTap: () {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                              scrollable: true,
+                              title: Text('BUSCAR OS'),
+                              content: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Form(
+                                  child: TextFormField(
+                                    //  keyboardType: TextInputType.datetime,
+                                    controller: _numeroOsController,
+                                    decoration: InputDecoration(
+                                      icon: Icon(Icons.search),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            actions: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.blue,
-                                  onPrimary: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(32.0),
+                              actions: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.blue,
+                                    onPrimary: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(32.0),
+                                    ),
                                   ),
-                                ),
-                                child: Text("IR"),
-                                onPressed: () async {
-                                  if (_numeroOsController.text.isEmpty) {
-                                    BotToast.showText(
-                                        text: "CAMPO VAZIO",
-                                        clickClose: true,
-                                        backgroundColor: Colors.black26);
-                                  } else {
-                                    Response response;
-                                    Dio dio = new Dio();
-                                    String url =
-                                        'http://192.168.15.2:8090/api/getOs';
-                                    // 'http://192.168.15.2:8090/api/getOs';
-                                    response = await dio.post(url, data: {
-                                      "numeroos": _numeroOsController.text
-                                    });
-
-                                    print(response.statusCode);
-
-                                    if (response.data == "not_found") {
+                                  child: Text("IR"),
+                                  onPressed: () async {
+                                    if (_numeroOsController.text.isEmpty) {
                                       BotToast.showText(
-                                          text: "OS não encontrada",
+                                          text: "CAMPO VAZIO",
                                           clickClose: true,
                                           backgroundColor: Colors.black26);
                                     } else {
-                                      Future loadProdutos() async {
-                                        ProdutosList produtosList =
-                                            ProdutosList.fromJson(
-                                                response.data);
-                                        print(produtosList.produtos[0].qtd);
-                                        print(produtosList.produtos.length);
-                                        produtosList1 = produtosList.produtos;
-                                        print(produtosList1[0].desc);
-                                        print(produtosList1[0].cod_produto);
-                                        print(produtosList1[0].codProd);
-
-                                        String dataPrevisao = produtosList
-                                            .produtos[0].dataPrevisao;
-                                        DateTime.parse(dataPrevisao);
-                                        print(dataPrevisao);
-                                        if (DateTime.now().isBefore(
-                                            DateTime.parse(dataPrevisao))) {
-                                          print("eh menor");
-                                          dataExpirada = "n";
-                                        } else {
-                                          dataExpirada = "s";
-                                        }
-                                        osCod = produtosList.produtos[0].codOs;
-                                      }
-
-                                      setState(() {
-                                        loadProdutos();
-                                        Navigator.pop(context, true);
-                                        if (dataExpirada == "s") {
-                                          BotToast.showText(
-                                              text:
-                                                  "DATA DE PREVISÃO JÁ ATINGIDA",
-                                              align: Alignment(0, 0),
-                                              clickClose: true,
-                                              contentColor: Colors.red,
-                                              backgroundColor: Colors.black26);
-                                        }
+                                      Response response;
+                                      Dio dio = new Dio();
+                                      String url = linkUrl + 'getOs';
+                                      // 'http://192.168.15.2:8090/api/getOs';
+                                      response = await dio.post(url, data: {
+                                        "numeroos": _numeroOsController.text
                                       });
+                                      print(response.statusCode);
+                                      if (response.data == "not_found") {
+                                        Response response;
+                                        Dio dio = new Dio();
+                                        String url = linkUrl + 'getOs0';
+                                        // 'http://192.168.15.2:8090/api/getOs';
+                                        response = await dio.post(url, data: {
+                                          "numeroos": _numeroOsController.text
+                                        });
+
+                                        if (response.data == "not_found") {
+                                          BotToast.showText(
+                                              text: "OS não encontrada",
+                                              clickClose: true,
+                                              backgroundColor: Colors.black26);
+                                        } else {
+                                          print(response.data[0]['status']);
+                                          print(
+                                              response.data[0]['DataPrevisao']);
+                                          print(response.data[0]['CodCliente']);
+                                          print(
+                                              response.data[0]['Numero_da_OS']);
+                                          print(response.data[0]['CodOS']);
+                                          print(response.data[0]);
+                                          ProdutosList produtosList =
+                                              ProdutosList.fromJson(
+                                                  response.data);
+                                          print(produtosList.produtos[0].qtd);
+                                          print(produtosList.produtos.length);
+                                          produtosList1 = produtosList.produtos;
+                                          print(produtosList1[0].codOs);
+                                          osCod =
+                                              produtosList.produtos[0].codOs;
+
+                                          String dataPrevisao = produtosList
+                                              .produtos[0].dataPrevisao;
+                                          DateTime.parse(dataPrevisao);
+                                          print(dataPrevisao);
+                                          if (DateTime.now().isBefore(
+                                              DateTime.parse(dataPrevisao))) {
+                                            print("eh menor");
+                                            dataExpirada = "n";
+                                          } else {
+                                            dataExpirada = "s";
+                                          }
+                                          if (dataExpirada == "s") {
+                                            BotToast.showText(
+                                                text:
+                                                    "DATA DE PREVISÃO JÁ ATINGIDA",
+                                                align: Alignment(0, 0),
+                                                clickClose: true,
+                                                contentColor: Colors.red,
+                                                backgroundColor:
+                                                    Colors.black26);
+                                          }
+
+                                          setState(() {
+                                            _numeroOsController.clear();
+                                            Navigator.pop(context, true);
+                                          });
+                                        }
+                                      } else {
+                                        // loadProdutos1(response, produtosList1,
+                                        //     dataExpirada, osCod);
+                                        Future loadProdutos() async {
+                                          ProdutosList produtosList =
+                                              ProdutosList.fromJson(
+                                                  response.data);
+                                          print(produtosList.produtos[0].qtd);
+                                          print(produtosList.produtos.length);
+                                          produtosList1 = produtosList.produtos;
+                                          print(produtosList1[0].desc);
+                                          print(produtosList1[0].cod_produto);
+                                          print(produtosList1[0].codProd);
+
+                                          String dataPrevisao = produtosList
+                                              .produtos[0].dataPrevisao;
+                                          DateTime.parse(dataPrevisao);
+                                          print(dataPrevisao);
+                                          if (DateTime.now().isBefore(
+                                              DateTime.parse(dataPrevisao))) {
+                                            print("eh menor");
+                                            dataExpirada = "n";
+                                          } else {
+                                            dataExpirada = "s";
+                                          }
+                                          osCod =
+                                              produtosList.produtos[0].codOs;
+                                        }
+
+                                        setState(() {
+                                          loadProdutos();
+
+                                          Navigator.pop(context, true);
+                                          if (dataExpirada == "s") {
+                                            BotToast.showText(
+                                                text:
+                                                    "DATA DE PREVISÃO JÁ ATINGIDA",
+                                                align: Alignment(0, 0),
+                                                clickClose: true,
+                                                contentColor: Colors.red,
+                                                backgroundColor:
+                                                    Colors.black26);
+                                          }
+                                        });
+                                      }
                                     }
-                                  }
-                                },
-                              )
-                            ]);
-                      });
-                },
-                child: Icon(
-                  Icons.search,
-                  size: 26.0,
-                ),
-              )),
-        ],
-      ),
+                                  },
+                                )
+                              ]);
+                        });
+                  },
+                  child: Icon(Icons.search, size: 26.0),
+                ))
+          ]),
       drawer: Drawer(
           elevation: 20.0,
           child: ListView(padding: EdgeInsets.zero, children: <Widget>[
@@ -242,8 +297,10 @@ class _OSState extends State<OS> {
                 onTap: () async {
                   final prefs = await SharedPreferences.getInstance();
                   final prefs1 = await SharedPreferences.getInstance();
+                  final prefs2 = await SharedPreferences.getInstance();
                   prefs.clear();
                   prefs1.clear();
+                  prefs2.clear();
 
                   setState(() {
                     Navigator.of(context).pushReplacement(
@@ -340,8 +397,9 @@ class _OSState extends State<OS> {
                               Expanded(
                                 flex: 2,
                                 child: Text(
-                                  produtosList1.isEmpty
-                                      ? "data is empty"
+                                  produtosList1.isEmpty ||
+                                          produtosList1[index].codProd == null
+                                      ? " "
                                       : produtosList1[index].codProd,
                                   // : produtosList1[index].cod_produto,
                                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -350,7 +408,12 @@ class _OSState extends State<OS> {
                               Expanded(
                                 flex: 1,
                                 child: Text(
-                                  produtosList1[index].qtd.toString(),
+                                  //produtosList1[index].qtd.toString(),
+                                  produtosList1.isEmpty ||
+                                          produtosList1[index].qtd.toString() ==
+                                              ""
+                                      ? "VAZIO"
+                                      : produtosList1[index].qtd,
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -358,7 +421,7 @@ class _OSState extends State<OS> {
                                 flex: 4,
                                 child: Text(
                                     produtosList1[index].funcionario == null
-                                        ? "-"
+                                        ? " "
                                         : produtosList1[index].funcionario,
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
@@ -367,8 +430,9 @@ class _OSState extends State<OS> {
                               Expanded(
                                 flex: 4,
                                 child: Text(
-                                    produtosList1.isEmpty
-                                        ? "data is empty"
+                                    produtosList1.isEmpty ||
+                                            produtosList1[index].desc == null
+                                        ? " "
                                         : produtosList1[index].desc,
                                     //produtosList1[index].desc,
                                     style: TextStyle(
@@ -387,25 +451,25 @@ class _OSState extends State<OS> {
                                   builder: (BuildContext context) {
                                     // retorna um objeto do tipo Dialog
                                     return AlertDialog(
-                                        title: new Text("Remoção de Peça"),
-                                        content: new Text(
+                                        title: Text("Remoção de Peça"),
+                                        content: Text(
                                             "Deseja realmente remover a peça " +
                                                 produtosList1[index].desc +
                                                 "?"),
                                         actions: <Widget>[
-                                          new FlatButton(
-                                            child: new Text("NÃO"),
+                                          FlatButton(
+                                            child: Text("NÃO"),
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
                                           ),
-                                          new FlatButton(
-                                              child: new Text("SIM"),
+                                          FlatButton(
+                                              child: Text("SIM"),
                                               onPressed: () async {
                                                 Response response;
-                                                Dio dio = new Dio();
+                                                Dio dio = Dio();
                                                 String url =
-                                                    'http://192.168.15.2:8090/api/deleteProduto';
+                                                    linkUrl + 'deleteProduto';
                                                 response =
                                                     await dio.post(url, data: {
                                                   "CodOs": produtosList1[index]
@@ -419,8 +483,7 @@ class _OSState extends State<OS> {
                                                 });
                                                 Response response1;
                                                 Dio dio1 = new Dio();
-                                                String url1 =
-                                                    'http://192.168.15.2:8090/api/getOs';
+                                                String url1 = linkUrl + 'getOs';
                                                 response1 = await dio1
                                                     .post(url1, data: {
                                                   "numeroos":
@@ -469,7 +532,7 @@ class _OSState extends State<OS> {
                     color: Colors.white,
                   ),
                   child: DropdownButtonFormField(
-                    hint: Text('Choose '),
+                    hint: Text('Selecionar Funcionário '),
                     onChanged: (value) {
                       print("VALUE DO DROPDOWN $value");
                       funcionarioDrop = value[0];
@@ -489,9 +552,15 @@ class _OSState extends State<OS> {
                     Expanded(
                       flex: 2,
                       child: TextFormField(
+                        // keyboardType: TextInputType.datetime,
                         controller: _codprodController,
                         decoration: InputDecoration(
-                          icon: Icon(Icons.add),
+                          hintText: ("Codigo da peça"),
+                          hintStyle: TextStyle(color: Colors.black38),
+                          icon: Icon(
+                            Icons.keyboard,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
@@ -499,17 +568,19 @@ class _OSState extends State<OS> {
                       flex: 1,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: Colors.blue,
-                          onPrimary: Colors.white,
+                          primary: Colors.blueAccent[400],
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(32.0),
                           ),
                         ),
-                        child: Text("IR"),
+                        child:
+                            //Text("IR"),
+                            Icon(Icons.filter_alt_outlined),
                         onPressed: () async {
                           Response response;
                           Dio dio = new Dio();
-                          String url = 'http://192.168.15.2:8090/api/getPeca';
+                          // String url = 'http://192.168.1.66:8090/api/getPeca';
+                          String url = linkUrl + 'getPeca';
                           response = await dio.post(url,
                               data: {"codprod": _codprodController.text});
                           print(response.statusCode);
@@ -551,8 +622,10 @@ class _OSState extends State<OS> {
                   children: [
                     Expanded(
                         flex: 6,
-                        child: Text(produtoDesc == null ? "- - -" : produtoDesc,
-                            overflow: TextOverflow.ellipsis)),
+                        child: Text(
+                          produtoDesc == null ? "- - -" : produtoDesc,
+                          overflow: TextOverflow.ellipsis,
+                        )),
                     Expanded(
                       flex: 2,
                       child: TextFormField(
@@ -564,6 +637,10 @@ class _OSState extends State<OS> {
                     Expanded(
                         flex: 2,
                         child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.green[600], // background
+                              onPrimary: Colors.lightGreen[50], // foreground
+                            ),
                             child: Icon(
                                 Icons.add), //verifica se não tem nada vazio
                             onPressed: (_qtdController.text.isEmpty ||
@@ -577,8 +654,7 @@ class _OSState extends State<OS> {
                                             "Fechado")) {
                                       Response response;
                                       Dio dio = new Dio();
-                                      String url =
-                                          'http://192.168.15.2:8090/api/addProduto';
+                                      String url = linkUrl + 'addProduto';
                                       response = await dio.post(url, data: {
                                         "CodOs": osCod,
                                         "CodProduto": produtoCod,
@@ -602,11 +678,10 @@ class _OSState extends State<OS> {
                                       //['code'].toString());
 
                                       if (response.data == "Ok!") {
-                                        print("OK caraiiii");
+                                        print("Response OK");
                                         Response response1;
                                         Dio dio = new Dio();
-                                        String url =
-                                            'http://192.168.15.2:8090/api/updateCusto';
+                                        String url = linkUrl + 'updateCusto';
                                         response1 = await dio.post(url, data: {
                                           "CodOs": osCod,
                                           "CodProduto": produtoCod
@@ -614,6 +689,9 @@ class _OSState extends State<OS> {
                                         print(response1.data);
                                         BotToast.showSimpleNotification(
                                             title: "Item Adicionado");
+                                        _qtdController.clear();
+                                        _codprodController.clear();
+                                        produtoCod = "";
                                       } else if (response.data['error']
                                                   ['originalError']['info']
                                               ['number'] ==
@@ -622,8 +700,7 @@ class _OSState extends State<OS> {
                                         //Faz o update
                                         Response response;
                                         Dio dio = new Dio();
-                                        String url =
-                                            'http://192.168.15.2:8090/api/updateProduto';
+                                        String url = linkUrl + 'updateProduto';
                                         response = await dio.post(url, data: {
                                           "CodOs": osCod,
                                           "CodProduto": produtoCod,
@@ -636,12 +713,13 @@ class _OSState extends State<OS> {
                                             title: "Item Atualizado");
                                       } else {
                                         print("erro");
+                                        BotToast.showSimpleNotification(
+                                            title: "ERRO");
                                       }
 
                                       Response response1;
                                       Dio dio1 = new Dio();
-                                      String url1 =
-                                          'http://192.168.15.2:8090/api/getOs';
+                                      String url1 = linkUrl + 'getOs';
                                       response1 = await dio1.post(url1, data: {
                                         "numeroos": _numeroOsController.text
                                       });
