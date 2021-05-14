@@ -6,6 +6,8 @@ import 'package:app_novo/view/login.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../model/funcionarios.dart';
 import 'package:date_format/date_format.dart';
@@ -40,6 +42,50 @@ class _OSState extends State<OS> {
     return operadorLogado;
   }
 
+  String _scanBarcode = 'Unknown';
+  // Future<void> scanBarcodeNormal() async {
+  //   String barcodeScanRes;
+  //   // Platform messages may fail, so we use a try/catch PlatformException.
+  //   try {
+  //     barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+  //         '#ff6666', 'Cancel', true, ScanMode.BARCODE);
+  //     print(barcodeScanRes);
+  //   } on PlatformException {
+  //     barcodeScanRes = 'Failed to get platform version.';
+  //   }
+
+  //   // If the widget was removed from the tree while the asynchronous platform
+  //   // message was in flight, we want to discard the reply rather than calling
+  //   // setState to update our non-existent appearance.
+  //   if (!mounted) return;
+
+  //   setState(() {
+  //     _scanBarcode = barcodeScanRes;
+  //   });
+  // }
+
+  Future<void> scanQR() async {
+    String barcodeScanRes;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
+          '#ff6666', 'Cancel', true, ScanMode.QR);
+      print(barcodeScanRes);
+    } on PlatformException {
+      barcodeScanRes = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _scanBarcode = barcodeScanRes;
+    });
+    return _scanBarcode;
+  }
+
   var funcioa1;
   List produtosList1 = <ProdutoOs>[];
   List funcionariosList = <Funcionarios>[];
@@ -51,8 +97,9 @@ class _OSState extends State<OS> {
   var osCod;
   var produtoCod;
   var dataExpirada;
-  //static const linkUrl = "http://192.168.1.66:8090/api/";
-  static const linkUrl = "http://192.168.0.142:8090/api/";
+  var numeroOS;
+  // static const linkUrl = "http://192.168.1.66:8090/api/";
+  static const linkUrl = "http://192.168.15.7:8090/api/";
 
   // LIST OF DROPDOWN MENU ITEMS;
   List<DropdownMenuItem> newFuncionariosList = [];
@@ -174,6 +221,10 @@ class _OSState extends State<OS> {
                                               clickClose: true,
                                               backgroundColor: Colors.black26);
                                         } else {
+                                          numeroOS = _numeroOsController.text;
+                                          print(
+                                              "Numero OS tirado do controller");
+                                          print(numeroOS);
                                           print(response.data[0]['status']);
                                           print(
                                               response.data[0]['DataPrevisao']);
@@ -196,6 +247,10 @@ class _OSState extends State<OS> {
                                               .produtos[0].dataPrevisao;
                                           DateTime.parse(dataPrevisao);
                                           print(dataPrevisao);
+                                          // numeroOS = _numeroOsController.text;
+                                          // print(
+                                          //     "Numero OS tirado do controller");
+                                          // print(numeroOS);
                                           if (DateTime.now().isBefore(
                                               DateTime.parse(dataPrevisao))) {
                                             print("eh menor");
@@ -215,6 +270,8 @@ class _OSState extends State<OS> {
                                           }
 
                                           setState(() {
+                                            print(dataPrevisao);
+
                                             _numeroOsController.clear();
                                             Navigator.pop(context, true);
                                           });
@@ -252,6 +309,11 @@ class _OSState extends State<OS> {
                                           loadProdutos();
 
                                           Navigator.pop(context, true);
+                                          numeroOS = _numeroOsController.text;
+                                          print(
+                                              "Numero OS tirado do controller");
+                                          print(numeroOS);
+                                          _numeroOsController.clear();
                                           if (dataExpirada == "s") {
                                             BotToast.showText(
                                                 text:
@@ -306,7 +368,14 @@ class _OSState extends State<OS> {
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => Login()));
                   });
-                })
+                }),
+            ListTile(
+              leading: Icon(Icons.camera_alt),
+              title: Text(_scanBarcode),
+              onTap: () async {
+                //  scanBarcodeNormal();
+              },
+            )
           ])),
       body: Column(
         children: [
@@ -410,9 +479,9 @@ class _OSState extends State<OS> {
                                 child: Text(
                                   //produtosList1[index].qtd.toString(),
                                   produtosList1.isEmpty ||
-                                          produtosList1[index].qtd.toString() ==
-                                              ""
-                                      ? "VAZIO"
+                                          produtosList1[index].qtd == "" ||
+                                          produtosList1[index].qtd == "null"
+                                      ? ""
                                       : produtosList1[index].qtd,
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
@@ -486,23 +555,59 @@ class _OSState extends State<OS> {
                                                 String url1 = linkUrl + 'getOs';
                                                 response1 = await dio1
                                                     .post(url1, data: {
-                                                  "numeroos":
-                                                      _numeroOsController.text
+                                                  "numeroos": numeroOS
+                                                  // data: {"numeroos": osCod});
                                                 });
 
-                                                Future loadProdutos() async {
+                                                if (response1.data ==
+                                                    "not_found") {
+                                                  Response response2;
+                                                  Dio dio = new Dio();
+                                                  String url =
+                                                      linkUrl + 'getOs0';
+                                                  // 'http://192.168.15.2:8090/api/getOs';
+                                                  response2 = await dio
+                                                      .post(url, data: {
+                                                    "numeroos": numeroOS
+                                                  });
+                                                  print(response2.data);
+
                                                   ProdutosList produtosList =
                                                       ProdutosList.fromJson(
-                                                          response1.data);
+                                                          response2.data);
+
                                                   produtosList1 =
                                                       produtosList.produtos;
-                                                }
 
-                                                setState(() {
-                                                  loadProdutos();
-                                                });
-                                                print(response.data);
-                                                Navigator.of(context).pop();
+                                                  osCod = produtosList
+                                                      .produtos[0].codOs;
+
+                                                  Future loadProdutos() async {
+                                                    ProdutosList produtosList =
+                                                        ProdutosList.fromJson(
+                                                            response2.data);
+                                                    produtosList1 =
+                                                        produtosList.produtos;
+                                                  }
+
+                                                  setState(() {
+                                                    loadProdutos();
+                                                  });
+                                                } else {
+                                                  Future loadProdutos() async {
+                                                    ProdutosList produtosList =
+                                                        ProdutosList.fromJson(
+                                                            response1.data);
+                                                    produtosList1 =
+                                                        produtosList.produtos;
+                                                  }
+
+                                                  setState(() {
+                                                    loadProdutos();
+                                                  });
+                                                  print(response.data);
+                                                  Navigator.of(context).pop();
+                                                }
                                               })
                                         ]);
                                   });
@@ -538,8 +643,6 @@ class _OSState extends State<OS> {
                       funcionarioDrop = value[0];
                       funcionarioDrop1 = value[1];
                       print(funcionarioDrop);
-                      // var funcionarioDrop = value;
-                      // here you can pass it to a variable for example
                     },
                     items: newFuncionariosList,
                   ),
@@ -550,7 +653,7 @@ class _OSState extends State<OS> {
                 Row(
                   children: [
                     Expanded(
-                      flex: 2,
+                      flex: 4,
                       child: TextFormField(
                         // keyboardType: TextInputType.datetime,
                         controller: _codprodController,
@@ -565,7 +668,7 @@ class _OSState extends State<OS> {
                       ),
                     ),
                     Expanded(
-                      flex: 1,
+                      flex: 2,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blueAccent[400],
@@ -612,7 +715,150 @@ class _OSState extends State<OS> {
                           }
                         },
                       ),
-                    )
+                    ),
+                    // Expanded(
+                    //     flex: 1,
+                    //     child: ElevatedButton(
+                    //         style: ElevatedButton.styleFrom(
+                    //           primary: Colors.blueAccent[400],
+                    //           shape: RoundedRectangleBorder(
+                    //             borderRadius: BorderRadius.circular(32.0),
+                    //           ),
+                    //         ),
+                    //         onPressed: () async {
+                    //           scanBarcodeNormal();
+                    //         },
+                    //         child: Icon(Icons.camera_alt))),
+                    Expanded(
+                        flex: 1,
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              primary: Colors.blueAccent[400],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(32.0),
+                              ),
+                            ),
+                            onPressed: () async {
+                              await scanQR();
+
+                              print("Barcode abaixo");
+                              print(_scanBarcode);
+                              Response response;
+                              Dio dio = new Dio();
+                              // String url = 'http://192.168.1.66:8090/api/getPeca';
+                              String url = linkUrl + 'getPeca';
+                              response = await dio
+                                  .post(url, data: {"codprod": _scanBarcode});
+                              print(response.statusCode);
+                              print(response.data);
+
+                              if (response.data == 'not_found') {
+                                BotToast.showText(
+                                    duration: Duration(seconds: 2),
+                                    text: "Peça não encontrada",
+                                    // clickClose: true,
+                                    backgroundColor: Colors.black26,
+                                    align: Alignment(0, 0));
+                              } else {
+                                produtoDesc =
+                                    response.data[0]['Descricao'].toString();
+                                produtoCod =
+                                    response.data[0]['Codigo'].toString();
+
+                                if ((nivelUsuario == "MASTER" ||
+                                        dataExpirada == "n") &&
+                                    (produtosList1[0].status != "Fechado")) {
+                                  Response response;
+                                  Dio dio = new Dio();
+                                  String url = linkUrl + 'addProduto';
+                                  response = await dio.post(url, data: {
+                                    "CodOs": osCod,
+                                    "CodProduto": produtoCod,
+                                    "Qtde": _qtdController.text.isEmpty
+                                        ? 1
+                                        : _qtdController.text,
+                                    "ValorUnitario": 1.00,
+                                    "CodFuncionario": funcionarioDrop,
+                                    "Sub": 1.00,
+                                    "Tipo": "A",
+                                    "Operador": operadorLogado,
+                                    "valorantigo": 1.00,
+                                    "Custounit": 1.00
+                                  });
+
+                                  if (response.data == "Ok!") {
+                                    print("Response OK");
+                                    Response response1;
+                                    Dio dio = new Dio();
+                                    String url = linkUrl + 'updateCusto';
+                                    response1 = await dio.post(url, data: {
+                                      "CodOs": osCod,
+                                      "CodProduto": produtoCod
+                                    });
+                                    print(response1.data);
+                                    BotToast.showSimpleNotification(
+                                        title: "Item Adicionado");
+                                    _qtdController.clear();
+                                    _codprodController.clear();
+                                    produtoDesc = null;
+                                  } else if (response.data['error']
+                                          ['originalError']['info']['number'] ==
+                                      2627) {
+                                    print("ERRO DE CHAVE PRIMÁRIA");
+                                    //Faz o update
+                                    Response response;
+                                    Dio dio = new Dio();
+                                    String url = linkUrl + 'updateProduto';
+                                    response = await dio.post(url, data: {
+                                      "CodOs": osCod,
+                                      "CodProduto": produtoCod,
+                                      "Qtde": _qtdController.text.isEmpty
+                                          ? 1
+                                          : _qtdController.text,
+                                      "CodFuncionario": funcionarioDrop,
+                                      "Operador": operadorLogado,
+                                    });
+                                    print(response.data);
+                                    BotToast.showSimpleNotification(
+                                        title: "Item Atualizado");
+                                    _qtdController.clear();
+                                    _codprodController.clear();
+                                    produtoDesc = null;
+                                  } else {
+                                    print("erro");
+                                    BotToast.showSimpleNotification(
+                                        title: "ERRO");
+                                  }
+
+                                  Response response1;
+                                  Dio dio1 = new Dio();
+                                  String url1 = linkUrl + 'getOs';
+                                  response1 = await dio1
+                                      .post(url1, data: {"numeroos": numeroOS});
+
+                                  Future loadProdutos() async {
+                                    ProdutosList produtosList =
+                                        ProdutosList.fromJson(response1.data);
+                                    produtosList1 = produtosList.produtos;
+                                  }
+
+                                  setState(() {
+                                    loadProdutos();
+                                  });
+                                } else {
+                                  BotToast.showText(
+                                      text:
+                                          "Não é possível realizar alterações",
+                                      align: Alignment(0, 0),
+                                      clickClose: true,
+                                      contentColor: Colors.red,
+                                      backgroundColor: Colors.black26);
+                                }
+
+                                setState(() {});
+                              }
+                            },
+                            child: Icon(Icons.qr_code_scanner)))
                   ],
                 ),
                 Divider(
@@ -631,7 +877,10 @@ class _OSState extends State<OS> {
                       child: TextFormField(
                         keyboardType: TextInputType.number,
                         controller: _qtdController,
-                        decoration: InputDecoration(hintText: "qtd"),
+                        decoration: InputDecoration(
+                          hintText: "qtd",
+                          hintStyle: TextStyle(color: Colors.black38),
+                        ),
                       ),
                     ),
                     Expanded(
@@ -691,7 +940,9 @@ class _OSState extends State<OS> {
                                             title: "Item Adicionado");
                                         _qtdController.clear();
                                         _codprodController.clear();
-                                        produtoCod = "";
+                                        produtoDesc = null;
+                                        // _codprodController.clear();
+                                        // produtoCod = "";
                                       } else if (response.data['error']
                                                   ['originalError']['info']
                                               ['number'] ==
@@ -711,6 +962,9 @@ class _OSState extends State<OS> {
                                         print(response.data);
                                         BotToast.showSimpleNotification(
                                             title: "Item Atualizado");
+                                        _qtdController.clear();
+                                        _codprodController.clear();
+                                        produtoDesc = null;
                                       } else {
                                         print("erro");
                                         BotToast.showSimpleNotification(
@@ -721,8 +975,12 @@ class _OSState extends State<OS> {
                                       Dio dio1 = new Dio();
                                       String url1 = linkUrl + 'getOs';
                                       response1 = await dio1.post(url1, data: {
-                                        "numeroos": _numeroOsController.text
+                                        "numeroos": numeroOS
+                                        // data: {"numeroos": osCod});
                                       });
+
+                                      print("controller text");
+                                      print(numeroOS);
 
                                       Future loadProdutos() async {
                                         ProdutosList produtosList =
