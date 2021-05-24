@@ -1,16 +1,19 @@
 import 'dart:convert';
 import 'package:app_novo/model/funcionarios.dart';
 import 'package:app_novo/model/produtoOs.dart';
+import 'package:app_novo/view/login.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dropdown/flutter_dropdown.dart';
+//import '../model/funcionarios.dart';
 
 class OS extends StatefulWidget {
   @override
   _OSState createState() => _OSState();
 }
+
+String operadorLogado = "";
 
 class _OSState extends State<OS> {
   static _read() async {
@@ -18,7 +21,7 @@ class _OSState extends State<OS> {
     final key = 'operador';
     final value = prefs.getString(key);
     print('saved tester $value');
-    String operadorLogado = value;
+    operadorLogado = value;
     return operadorLogado;
   }
 
@@ -26,51 +29,59 @@ class _OSState extends State<OS> {
   List produtosList1 = <ProdutoOs>[];
   int _value = 1;
   List funcionariosList = <Funcionarios>[];
-  //List itensDrop = [];
-  //List _func = [];
+  Funcionarios funcionarios;
+  ProdutoOs produtoOs;
+  var funcionarioDrop;
+  var funcionarioDrop1;
+  var produtoDesc;
+  var osCod;
+  var produtoCod;
+
+  // LIST OF DROPDOWN MENU ITEMS;
+  List<DropdownMenuItem> newFuncionariosList = [];
 
   Future loadFuncionarios() async {
     Response response;
     Dio dio = new Dio();
-    String url = 'http://192.168.15.5:8090/api/funcionarios';
+    String url = 'http://192.168.15.2:8090/api/funcionarios';
     response = await dio.post(url);
 
     FuncionariosList funcionariosList =
         FuncionariosList.fromJson(response.data);
+
+    // CREATING A DROPDOWN MENU ITEM FOR EACH ELEEMENT
+    funcionariosList.funcionarios.forEach((element) {
+      newFuncionariosList.add(
+        DropdownMenuItem(
+            child: Text(
+              '${element.nome}',
+              style: TextStyle(fontSize: 16),
+            ),
+            value: [element.codigo, element.nome]),
+      );
+    });
+    print(newFuncionariosList);
+    setState(() {
+      newFuncionariosList = newFuncionariosList;
+    });
     print(funcionariosList.funcionarios[0].nome);
     print(funcionariosList.funcionarios.length);
-    print(funcionariosList.funcionarios);
-    //itensDrop = funcionariosList.funcionarios;
-    // print(itensDrop);
-    // funcioa1 = response.data;
-    // final Map<String, dynamic> data1 = json.decode(funcioa1);
-    // print(data1);
-    // print("funcioa1:::");
-    // print(funcioa1);
-    // itensDrop = jsonDecode(funcioa1);
-
-    // print("itensdrop:::");
-    // print(itensDrop);
-
-    // List<Funcionarios> data = funcionariosList.funcionarios;
-    // print(data);
-
-    // var jsonFunc = JsonDecoder().convert(data);
-    // _func = (json).map<Funcionarios>((data){
-
-    // }).toList();
-
-    // );
   }
 
   final _numeroOsController = TextEditingController();
+  final _codprodController = TextEditingController();
+  final _codprodqtdController = TextEditingController();
+  final _qtdPecaController = TextEditingController();
+  final _qtdController = TextEditingController();
+  //final _codPecaController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _read();
-    loadFuncionarios();
-    //WidgetsBinding.instance.addPostFrameCallback((_) => _read());
+
+    //loadFuncionarios();
+    WidgetsBinding.instance.addPostFrameCallback((_) => loadFuncionarios());
     // final prefs = await SharedPreferences.getInstance();
     // final key = 'usuario';
     // final value = prefs.getString(key);
@@ -79,6 +90,7 @@ class _OSState extends State<OS> {
 
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(
           "OS  Nº  ${produtosList1.isEmpty ? " --- " : produtosList1[0].numOs}",
@@ -126,11 +138,12 @@ class _OSState extends State<OS> {
                                     Response response;
                                     Dio dio = new Dio();
                                     String url =
-                                        'http://192.168.15.5:8090/api/getOs';
+                                        'http://192.168.15.2:8090/api/getOs';
                                     // 'http://192.168.15.2:8090/api/getOs';
                                     response = await dio.post(url, data: {
                                       "numeroos": _numeroOsController.text
                                     });
+
                                     print(response.statusCode);
 
                                     if (response.data == "not_found") {
@@ -151,18 +164,13 @@ class _OSState extends State<OS> {
                                         produtosList1 = produtosList.produtos;
                                         print(produtosList1[0].desc);
                                         print(produtosList1[0].cod_produto);
+                                        osCod = produtosList.produtos[0].codOs;
                                       }
 
                                       setState(() {
                                         loadProdutos();
                                         Navigator.pop(context, true);
                                       });
-                                      // var uuu = response.data;
-                                      // print(uuu);
-                                      // var maplist = await json
-                                      //     .decode(uuu)
-                                      //     .cast<Map<String, dynamic>>();
-                                      // print(maplist);
                                     }
                                   }
                                 },
@@ -186,7 +194,7 @@ class _OSState extends State<OS> {
             ),
             ListTile(
                 leading: Icon(Icons.person),
-                title: Text('Usuário'),
+                title: Text(operadorLogado),
                 onTap: () {}
                 //  async {
                 //   final prefs = await SharedPreferences.getInstance();
@@ -198,14 +206,14 @@ class _OSState extends State<OS> {
             ListTile(
                 leading: Icon(Icons.remove_circle),
                 title: Text('SAIR'),
-                onTap: () {}
-                //  async {
-                //   final prefs = await SharedPreferences.getInstance();
-                //   prefs.clear();
-                //   setState(() {
-                //     Navigator.of(context).pushReplacement(MaterialPageRoute(
-                //         builder: (context) => LoginScreen()));
-                )
+                onTap: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  prefs.clear();
+                  setState(() {
+                    Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (context) => Login()));
+                  });
+                })
           ])),
       body: Column(
         children: [
@@ -223,53 +231,47 @@ class _OSState extends State<OS> {
                           ),
                           overflow: TextOverflow.ellipsis),
                     ]),
-                    Row(
-                      children: [
-                        Text(
-                          "STATUS:  ${(produtosList1.isEmpty || produtosList1[0].status == null) ? " --- " : produtosList1[0].status}",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    )
+                    Row(children: [
+                      Text(
+                        "STATUS:  ${(produtosList1.isEmpty || produtosList1[0].status == null) ? " --- " : produtosList1[0].status}",
+                        style: TextStyle(color: Colors.white),
+                      )
+                    ])
                   ],
                 )),
           ),
           Container(
             color: Colors.blue,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    flex: 2,
-                    child: Text("CÓDIGO",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Text(
-                      "QTD",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                padding: const EdgeInsets.fromLTRB(0, 8.0, 0, 8.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      flex: 2,
+                      child: Text("CÓDIGO",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis),
                     ),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: Text(
-                      "FUNCIONÁRIO",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: Text(
-                      "DESCRIÇÃO",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                    Expanded(
+                        flex: 1,
+                        child: Text(
+                          "QTD",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                    Expanded(
+                        flex: 4,
+                        child: Text(
+                          "FUNCIONÁRIO",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                    Expanded(
+                        flex: 4,
+                        child: Text(
+                          "DESCRIÇÃO",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )),
+                  ],
+                )),
           ),
           Divider(
             height: 5.0,
@@ -294,10 +296,7 @@ class _OSState extends State<OS> {
                         Expanded(
                           flex: 1,
                           child: Text(
-                            //"2"
-                            produtosList1.isEmpty
-                                ? "data is empty"
-                                : produtosList1[index].qtd,
+                            produtosList1[index].qtd.toString(),
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
@@ -328,138 +327,156 @@ class _OSState extends State<OS> {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    scrollable: true,
-                    title: Text('ADICIONAR PEÇA'),
-                    content: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Form(
-                        child: Column(
-                          children: <Widget>[
-                            TextFormField(
-                              decoration: InputDecoration(
-                                icon: Icon(Icons.search),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    actions: [
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.blue,
-                            onPrimary: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(32.0),
-                            ),
-                          ),
-                          child: Text("IR"),
-                          onPressed: () {
-                            // your code
-                          }),
-                    ],
-                  );
-                });
-          },
-          child: Icon(Icons.add)),
       bottomNavigationBar: BottomAppBar(
-        child: Container(
-          height: 100.0,
-          color: Colors.blue[400],
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(children: [
-              Container(
-                  height: 30,
+        child: Form(
+          child: Container(
+            height: 180.0,
+            color: Colors.blue[400],
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView(children: [
+                Container(
+                  height: 50,
                   decoration: BoxDecoration(
                     color: Colors.white,
                   ),
-                  // child: DropDown(
-                  //   items: funcionariosList
-                  //       .map((funcionario) => items(
-                  //             child: null,
-                  //           ))
-                  //       .toList(),
-
-                  //   //                     FuncionariosList funcionariosList =
-                  //   //     FuncionariosList.fromJson(response.data);
-                  //   // print(funcionariosList.funcionarios[0].nome);
-                  //   // print(funcionariosList.funcionarios.length);
-
-                  //   // String data = funcionariosList.funcionarios as String;
-                  //   // print(data);
-
-                  //   // hint: Text("Male"),
-                  //   onChanged: print,
-                  // )
-                  child: DropDown(
-                    items: ["test"],
-
-                    //                   FuncionariosList funcionariosList =
-                    //     FuncionariosList.fromJson(response.data);
-                    // print(funcionariosList.funcionarios[0].nome);
-                    // print(funcionariosList.funcionarios.length);
-                  ) //MyWidget()
-                  // DropdownButton(
-                  //     isExpanded: true,
-                  //     iconEnabledColor: Colors.blue[900],
-                  //     value: _value,
-                  //     items: funcionariosList
-                  //         .map((funcionario) => DropdownMenuItem(
-                  //               child: null,
-                  //             ))
-                  //         .toList(),
-
-                  //     // DropdownMenuItem(
-                  //     //   child: Text("First Item"),
-                  //     //   value: 1,
-                  //     // ),
-                  //     // DropdownMenuItem(
-                  //     //   child: Text("Second Item"),
-                  //     //   value: 2,
-                  //     // ),
-                  //     // DropdownMenuItem(child: Text("Third Item"), value: 3),
-                  //     // DropdownMenuItem(child: Text("Fourth Item"), value: 4),
-                  //     // DropdownMenuItem(child: Text("Third Item"), value: 5),
-                  //     // DropdownMenuItem(child: Text("Third Item"), value: 6),
-                  //     // DropdownMenuItem(child: Text("Third Item"), value: 7),
-                  //     // DropdownMenuItem(child: Text("Third Item"), value: 8),
-                  //     // DropdownMenuItem(child: Text("Third Item"), value: 9),
-
-                  //     onChanged: (value) {
-                  //       setState(() {
-                  //         _value = value;
-                  //       });
-                  //     }),
-                  ),
-
-              // Form(
-              //   child: TextFormField(
-
-              //   ),
-              // )
-
-              Container(
-                  color: Colors.red,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      Response response;
-                      Dio dio = new Dio();
-                      String url = 'http://192.168.15.5:8090/api/funcionarios';
-                      // 'http://192.168.15.2:8090/api/getOs';
-                      response = await dio.post(url);
-                      print(response.statusCode);
-                      print(response.data);
+                  child: DropdownButtonFormField(
+                    hint: Text('Choose '),
+                    onChanged: (value) {
+                      print("VALUE DO DROPDOWN $value");
+                      funcionarioDrop = value[0];
+                      funcionarioDrop1 = value[1];
+                      print(funcionarioDrop);
+                      // var funcionarioDrop = value;
+                      // here you can pass it to a variable for example
                     },
-                    child: (Text("Teste")),
-                  )),
-            ]),
+                    items: newFuncionariosList,
+                  ),
+                ),
+                Divider(
+                  height: 6.0,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        controller: _codprodController,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.add),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.blue,
+                          onPrimary: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(32.0),
+                          ),
+                        ),
+                        child: Text("IR"),
+                        onPressed: () async {
+                          Response response;
+                          Dio dio = new Dio();
+                          String url = 'http://192.168.15.2:8090/api/getPeca';
+                          response = await dio.post(url,
+                              data: {"codprod": _codprodController.text});
+                          print(response.statusCode);
+                          print(response.data);
+                          if (response.data == 'not_found') {
+                            BotToast.showText(
+                                text: "Peça não encontrada",
+                                clickClose: true,
+                                backgroundColor: Colors.black26,
+                                align: Alignment(0, 0));
+                          } else {
+                            produtoDesc =
+                                response.data[0]['Descricao'].toString();
+                            produtoCod = response.data[0]['Codigo'].toString();
+                            // produtosList1.add(new ProdutoOs(
+                            //     cod_produto:
+                            //         response.data[0]['Codigo'].toString(),
+                            //     qtd: 24, //int.parse(_qtdPecaController.text),
+                            //     desc: response.data[0]['Descricao'].toString(),
+                            //     numOs: "produtosList1[0].numOs",
+                            //     codOs: produtosList1[0].codOs,
+                            //     funcionario: funcionarioDrop1,
+                            //     cliente: "produtosList1[0].cliente",
+                            //     status: 'produtosList1[0].status')
+                            //  );
+                            //adiciona na lista local
+                            setState(() {});
+                          }
+                        },
+                      ),
+                    )
+                  ],
+                ),
+                Divider(
+                  height: 8.0,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                        flex: 6,
+                        child: Text(produtoDesc == null ? "- - -" : produtoDesc,
+                            overflow: TextOverflow.ellipsis)),
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        controller: _qtdController,
+                        decoration: InputDecoration(hintText: "qtd"),
+                      ),
+                    ),
+                    Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                            child: Icon(Icons.add),
+                            onPressed: () async {
+                              Response response;
+                              Dio dio = new Dio();
+                              String url =
+                                  'http://192.168.15.2:8090/api/addProduto';
+                              response = await dio.post(url, data: {
+                                "CodOs": osCod,
+                                "CodProduto": produtoCod,
+                                "Qtde": _qtdController.text,
+                                "ValorUnitario": 1.00,
+                                "CodFuncionario": funcionarioDrop,
+                                "Sub": 1.00,
+                                "Tipo": "A",
+                                "Operador": operadorLogado,
+                                "valorantigo": 1.00,
+                                "Custounit": 1.00
+                              });
+                              print(response.statusCode);
+                              print(response.data);
+
+                              Response response1;
+                              Dio dio1 = new Dio();
+                              String url1 =
+                                  'http://192.168.15.2:8090/api/getOs';
+                              response1 = await dio1.post(url1,
+                                  data: {"numeroos": _numeroOsController.text});
+
+                              Future loadProdutos() async {
+                                ProdutosList produtosList =
+                                    ProdutosList.fromJson(response1.data);
+                                produtosList1 = produtosList.produtos;
+                              }
+
+                              setState(() {
+                                loadProdutos();
+                              });
+                            }))
+                  ],
+                )
+              ]),
+            ),
           ),
         ),
       ),

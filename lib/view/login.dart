@@ -65,12 +65,6 @@ class _LoginState extends State<Login> {
                         fontSize: 18.0,
                       ),
                     ),
-                    //
-                    //
-                    // onPressed: () => Navigator.of(context).pushReplacement(
-                    //     MaterialPageRoute(builder: (context) => OS())),
-                    //
-                    //
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         BotToast.showLoading(
@@ -79,7 +73,7 @@ class _LoginState extends State<Login> {
                         Response response;
                         Dio dio = new Dio();
 
-                        String url = 'http://192.168.15.7:8090/api/Login1';
+                        String url = 'http://192.168.15.6:8090/api/Login1';
                         //String url = 'http://192.168.1.66:8090/api/Login1';
                         //'http://192.168.15.2:8090/api/Login1';
                         // String url = 'https://webhook.site/ede21526-bec6-4089-b18d-cd4941184db9';
@@ -120,23 +114,6 @@ class _LoginState extends State<Login> {
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (context) => OS()));
                         }
-                        // if (resposta == "ok") {
-                        //   //Salva o usuário logado
-                        //   final prefs = await SharedPreferences.getInstance();
-                        //   final key = 'operador';
-                        //   final value = _operadorController.text;
-                        //   prefs.setString(key, value);
-                        //   print('saved $value');
-                        //   ////////FIM
-                        //   Navigator.of(context).pushReplacement(
-                        //       MaterialPageRoute(builder: (context) => OS()));
-                        // } else {
-                        //   BotToast.showText(
-                        //       text: "DADOS INCORRETOS",
-                        //       backButtonBehavior: BackButtonBehavior.close,
-                        //       clickClose: true,
-                        //       backgroundColor: Colors.black26);
-                        // }
                       }
                     },
                     style: ElevatedButton.styleFrom(

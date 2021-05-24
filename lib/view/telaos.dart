@@ -43,26 +43,6 @@ class _OSState extends State<OS> {
   }
 
   String _scanBarcode = 'Unknown';
-  // Future<void> scanBarcodeNormal() async {
-  //   String barcodeScanRes;
-  //   // Platform messages may fail, so we use a try/catch PlatformException.
-  //   try {
-  //     barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-  //         '#ff6666', 'Cancel', true, ScanMode.BARCODE);
-  //     print(barcodeScanRes);
-  //   } on PlatformException {
-  //     barcodeScanRes = 'Failed to get platform version.';
-  //   }
-
-  //   // If the widget was removed from the tree while the asynchronous platform
-  //   // message was in flight, we want to discard the reply rather than calling
-  //   // setState to update our non-existent appearance.
-  //   if (!mounted) return;
-
-  //   setState(() {
-  //     _scanBarcode = barcodeScanRes;
-  //   });
-  // }
 
   Future<void> scanQR() async {
     String barcodeScanRes;
@@ -74,10 +54,6 @@ class _OSState extends State<OS> {
     } on PlatformException {
       barcodeScanRes = 'Failed to get platform version.';
     }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
@@ -99,7 +75,7 @@ class _OSState extends State<OS> {
   var dataExpirada;
   var numeroOS;
   // static const linkUrl = "http://192.168.1.66:8090/api/";
-  static const linkUrl = "http://192.168.15.7:8090/api/";
+  static const linkUrl = "http://192.168.15.6:8090/api/";
 
   // LIST OF DROPDOWN MENU ITEMS;
   List<DropdownMenuItem> newFuncionariosList = [];
@@ -135,19 +111,13 @@ class _OSState extends State<OS> {
   final _numeroOsController = TextEditingController();
   final _codprodController = TextEditingController();
   final _qtdController = TextEditingController();
-  //final _codPecaController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _read();
 
-    //loadFuncionarios();
     WidgetsBinding.instance.addPostFrameCallback((_) => loadFuncionarios());
-    // final prefs = await SharedPreferences.getInstance();
-    // final key = 'usuario';
-    // final value = prefs.getString(key);
-    // print('saved $value');
   }
 
   Widget build(BuildContext context) {
@@ -247,10 +217,7 @@ class _OSState extends State<OS> {
                                               .produtos[0].dataPrevisao;
                                           DateTime.parse(dataPrevisao);
                                           print(dataPrevisao);
-                                          // numeroOS = _numeroOsController.text;
-                                          // print(
-                                          //     "Numero OS tirado do controller");
-                                          // print(numeroOS);
+
                                           if (DateTime.now().isBefore(
                                               DateTime.parse(dataPrevisao))) {
                                             print("eh menor");
@@ -277,8 +244,6 @@ class _OSState extends State<OS> {
                                           });
                                         }
                                       } else {
-                                        // loadProdutos1(response, produtosList1,
-                                        //     dataExpirada, osCod);
                                         Future loadProdutos() async {
                                           ProdutosList produtosList =
                                               ProdutosList.fromJson(
@@ -345,14 +310,7 @@ class _OSState extends State<OS> {
             ListTile(
                 leading: Icon(Icons.person),
                 title: Text(operadorLogado),
-                onTap: () {}
-                //  async {
-                //   final prefs = await SharedPreferences.getInstance();
-                //   prefs.clear();
-                //   setState(() {
-                //     Navigator.of(context).pushReplacement(MaterialPageRoute(
-                //         builder: (context) => LoginScreen()));
-                ),
+                onTap: () {}),
             ListTile(
                 leading: Icon(Icons.remove_circle),
                 title: Text('SAIR'),
@@ -363,7 +321,6 @@ class _OSState extends State<OS> {
                   prefs.clear();
                   prefs1.clear();
                   prefs2.clear();
-
                   setState(() {
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => Login()));
@@ -699,36 +656,12 @@ class _OSState extends State<OS> {
                             produtoDesc =
                                 response.data[0]['Descricao'].toString();
                             produtoCod = response.data[0]['Codigo'].toString();
-                            // produtosList1.add(new ProdutoOs(
-                            //     cod_produto:
-                            //         response.data[0]['Codigo'].toString(),
-                            //     qtd: 24, //int.parse(_qtdPecaController.text),
-                            //     desc: response.data[0]['Descricao'].toString(),
-                            //     numOs: "produtosList1[0].numOs",
-                            //     codOs: produtosList1[0].codOs,
-                            //     funcionario: funcionarioDrop1,
-                            //     cliente: "produtosList1[0].cliente",
-                            //     status: 'produtosList1[0].status')
-                            //  );
-                            //adiciona na lista local
+
                             setState(() {});
                           }
                         },
                       ),
                     ),
-                    // Expanded(
-                    //     flex: 1,
-                    //     child: ElevatedButton(
-                    //         style: ElevatedButton.styleFrom(
-                    //           primary: Colors.blueAccent[400],
-                    //           shape: RoundedRectangleBorder(
-                    //             borderRadius: BorderRadius.circular(32.0),
-                    //           ),
-                    //         ),
-                    //         onPressed: () async {
-                    //           scanBarcodeNormal();
-                    //         },
-                    //         child: Icon(Icons.camera_alt))),
                     Expanded(
                         flex: 1,
                         child: ElevatedButton(
@@ -804,7 +737,8 @@ class _OSState extends State<OS> {
                                   } else if (response.data['error']
                                           ['originalError']['info']['number'] ==
                                       2627) {
-                                    print("ERRO DE CHAVE PRIMÁRIA");
+                                    print(
+                                        "Item já adicionado, foi somado ao existente");
                                     //Faz o update
                                     Response response;
                                     Dio dio = new Dio();
@@ -918,13 +852,6 @@ class _OSState extends State<OS> {
                                       });
                                       print(response.statusCode);
                                       print(response.data);
-
-                                      //print(response.data['error']['originalError']
-                                      //      ['info']['message']);
-                                      //pega erro de chave primária
-                                      // var respostajson = (response.data.toString());
-                                      //  print(respostajson[5]);
-                                      //['code'].toString());
 
                                       if (response.data == "Ok!") {
                                         print("Response OK");
