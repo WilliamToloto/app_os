@@ -669,7 +669,7 @@ class _OSState extends State<OS> {
                   ),
                 ),
                 Divider(
-                  height: 6.0,
+                  height: 6.0, //
                 ),
                 Row(
                   children: [
