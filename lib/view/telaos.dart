@@ -1,5 +1,5 @@
 //import 'dart:convert';
-import 'package:app_novo/control/func.dart';
+//import 'package:app_novo/control/func.dart';
 import 'package:app_novo/model/funcionarios.dart';
 import 'package:app_novo/model/produtoOs.dart';
 import 'package:app_novo/view/login.dart';
@@ -75,7 +75,7 @@ class _OSState extends State<OS> {
   var dataExpirada;
   var numeroOS;
   // static const linkUrl = "http://192.168.1.66:8090/api/";
-  static const linkUrl = "http://192.168.15.6:8090/api/";
+  static const linkUrl = "http://192.168.15.5:8090/api/";
 
   // LIST OF DROPDOWN MENU ITEMS;
   List<DropdownMenuItem> newFuncionariosList = [];
@@ -162,6 +162,12 @@ class _OSState extends State<OS> {
                                   ),
                                   child: Text("IR"),
                                   onPressed: () async {
+                                    BotToast.showText(
+                                        text: "AGUARDE A BUSCA",
+                                        duration: Duration(milliseconds: 2000),
+                                        clickClose: false,
+                                        backgroundColor: Colors.black26);
+
                                     if (_numeroOsController.text.isEmpty) {
                                       BotToast.showText(
                                           text: "CAMPO VAZIO",
@@ -171,6 +177,20 @@ class _OSState extends State<OS> {
                                       Response response;
                                       Dio dio = new Dio();
                                       String url = linkUrl + 'getOs';
+                                      try {
+                                        await dio.get(url);
+                                      } on DioError catch (e) {
+                                        if (e.response != null) {
+                                          print(e.response.data);
+                                        } else {
+                                          BotToast.showText(
+                                              text: "FALHA NA CONEXÃO",
+                                              duration:
+                                                  Duration(milliseconds: 2000),
+                                              clickClose: true,
+                                              backgroundColor: Colors.black26);
+                                        }
+                                      }
                                       // 'http://192.168.15.2:8090/api/getOs';
                                       response = await dio.post(url, data: {
                                         "numeroos": _numeroOsController.text
@@ -180,6 +200,21 @@ class _OSState extends State<OS> {
                                         Response response;
                                         Dio dio = new Dio();
                                         String url = linkUrl + 'getOs0';
+                                        try {
+                                          await dio.get(url);
+                                        } on DioError catch (e) {
+                                          if (e.response != null) {
+                                            print(e.response.data);
+                                          } else {
+                                            BotToast.showText(
+                                                text: "FALHA NA CONEXÃO",
+                                                duration: Duration(
+                                                    milliseconds: 2000),
+                                                clickClose: true,
+                                                backgroundColor:
+                                                    Colors.black26);
+                                          }
+                                        }
                                         // 'http://192.168.15.2:8090/api/getOs';
                                         response = await dio.post(url, data: {
                                           "numeroos": _numeroOsController.text
@@ -300,39 +335,52 @@ class _OSState extends State<OS> {
                   child: Icon(Icons.search, size: 26.0),
                 ))
           ]),
-      drawer: Drawer(
-          elevation: 20.0,
+      drawer: Container(
+          color: Colors.blue.shade300,
           child: ListView(padding: EdgeInsets.zero, children: <Widget>[
             AppBar(
-              backgroundColor: Colors.red,
-              title: Text("Configurações"),
+              leading: GestureDetector(
+                  child: Icon(
+                    Icons.toc_outlined,
+                    color: Colors.blue,
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                  }),
+              backgroundColor: Colors.white,
+              title: Text("Opções", style: TextStyle(color: Colors.blue)),
+            ),
+            SizedBox(
+              height: 40.0,
             ),
             ListTile(
-                leading: Icon(Icons.person),
-                title: Text(operadorLogado),
+                leading: Icon(
+                  Icons.person,
+                  color: Colors.white,
+                ),
+                title:
+                    Text(operadorLogado, style: TextStyle(color: Colors.white)),
                 onTap: () {}),
             ListTile(
-                leading: Icon(Icons.remove_circle),
-                title: Text('SAIR'),
+                leading: Icon(
+                  Icons.remove_circle,
+                  color: Colors.white,
+                ),
+                title: Text('SAIR', style: TextStyle(color: Colors.white)),
                 onTap: () async {
                   final prefs = await SharedPreferences.getInstance();
                   final prefs1 = await SharedPreferences.getInstance();
                   final prefs2 = await SharedPreferences.getInstance();
+                  //final prefs3 = await SharedPreferences.getInstance();
                   prefs.clear();
                   prefs1.clear();
                   prefs2.clear();
+                  // perfs3.clear();
                   setState(() {
                     Navigator.of(context).pushReplacement(
                         MaterialPageRoute(builder: (context) => Login()));
                   });
                 }),
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text(_scanBarcode),
-              onTap: () async {
-                //  scanBarcodeNormal();
-              },
-            )
           ])),
       body: Column(
         children: [
@@ -483,19 +531,35 @@ class _OSState extends State<OS> {
                                                 produtosList1[index].desc +
                                                 "?"),
                                         actions: <Widget>[
-                                          FlatButton(
+                                          TextButton(
                                             child: Text("NÃO"),
                                             onPressed: () {
                                               Navigator.of(context).pop();
                                             },
                                           ),
-                                          FlatButton(
+                                          TextButton(
                                               child: Text("SIM"),
                                               onPressed: () async {
                                                 Response response;
                                                 Dio dio = Dio();
                                                 String url =
                                                     linkUrl + 'deleteProduto';
+                                                try {
+                                                  await dio.get(url);
+                                                } on DioError catch (e) {
+                                                  if (e.response != null) {
+                                                    print(e.response.data);
+                                                  } else {
+                                                    BotToast.showText(
+                                                        text:
+                                                            "FALHA NA CONEXÃO",
+                                                        duration: Duration(
+                                                            milliseconds: 2000),
+                                                        clickClose: true,
+                                                        backgroundColor:
+                                                            Colors.black26);
+                                                  }
+                                                }
                                                 response =
                                                     await dio.post(url, data: {
                                                   "CodOs": produtosList1[index]
@@ -641,6 +705,20 @@ class _OSState extends State<OS> {
                           Dio dio = new Dio();
                           // String url = 'http://192.168.1.66:8090/api/getPeca';
                           String url = linkUrl + 'getPeca';
+                          //verificar conexão API/Banco de dados
+                          try {
+                            await dio.get(url);
+                          } on DioError catch (e) {
+                            if (e.response != null) {
+                              print(e.response.data);
+                            } else {
+                              BotToast.showText(
+                                  text: "FALHA NA CONEXÃO",
+                                  duration: Duration(milliseconds: 2000),
+                                  clickClose: true,
+                                  backgroundColor: Colors.black26);
+                            }
+                          }
                           response = await dio.post(url,
                               data: {"codprod": _codprodController.text});
                           print(response.statusCode);
@@ -672,124 +750,148 @@ class _OSState extends State<OS> {
                               ),
                             ),
                             onPressed: () async {
-                              await scanQR();
+                              if (funcionarioDrop != null) {
+                                await scanQR();
 
-                              print("Barcode abaixo");
-                              print(_scanBarcode);
-                              Response response;
-                              Dio dio = new Dio();
-                              // String url = 'http://192.168.1.66:8090/api/getPeca';
-                              String url = linkUrl + 'getPeca';
-                              response = await dio
-                                  .post(url, data: {"codprod": _scanBarcode});
-                              print(response.statusCode);
-                              print(response.data);
+                                print("Barcode abaixo");
+                                print(_scanBarcode);
+                                Response response;
+                                Dio dio = new Dio();
+                                // String url = 'http://192.168.1.66:8090/api/getPeca';
+                                String url = linkUrl + 'getPeca';
+                                //verificar conexão API/Banco de dados
+                                try {
+                                  await dio.get(url);
+                                } on DioError catch (e) {
+                                  if (e.response != null) {
+                                    print(e.response.data);
+                                  } else {
+                                    BotToast.showText(
+                                        text: "FALHA NA CONEXÃO",
+                                        duration: Duration(milliseconds: 2000),
+                                        clickClose: true,
+                                        backgroundColor: Colors.black26);
+                                  }
+                                }
+                                response = await dio
+                                    .post(url, data: {"codprod": _scanBarcode});
+                                print(response.statusCode);
+                                print(response.data);
 
-                              if (response.data == 'not_found') {
-                                BotToast.showText(
-                                    duration: Duration(seconds: 2),
-                                    text: "Peça não encontrada",
-                                    // clickClose: true,
-                                    backgroundColor: Colors.black26,
-                                    align: Alignment(0, 0));
-                              } else {
-                                produtoDesc =
-                                    response.data[0]['Descricao'].toString();
-                                produtoCod =
-                                    response.data[0]['Codigo'].toString();
+                                if (response.data == 'not_found') {
+                                  BotToast.showText(
+                                      duration: Duration(seconds: 2),
+                                      text: "Peça não encontrada",
+                                      clickClose: false,
+                                      backgroundColor: Colors.black26,
+                                      align: Alignment(0, 0));
+                                } else {
+                                  produtoDesc =
+                                      response.data[0]['Descricao'].toString();
+                                  produtoCod =
+                                      response.data[0]['Codigo'].toString();
 
-                                if ((nivelUsuario == "MASTER" ||
-                                        dataExpirada == "n") &&
-                                    (produtosList1[0].status != "Fechado")) {
-                                  Response response;
-                                  Dio dio = new Dio();
-                                  String url = linkUrl + 'addProduto';
-                                  response = await dio.post(url, data: {
-                                    "CodOs": osCod,
-                                    "CodProduto": produtoCod,
-                                    "Qtde": _qtdController.text.isEmpty
-                                        ? 1
-                                        : _qtdController.text,
-                                    "ValorUnitario": 1.00,
-                                    "CodFuncionario": funcionarioDrop,
-                                    "Sub": 1.00,
-                                    "Tipo": "A",
-                                    "Operador": operadorLogado,
-                                    "valorantigo": 1.00,
-                                    "Custounit": 1.00
-                                  });
-
-                                  if (response.data == "Ok!") {
-                                    print("Response OK");
-                                    Response response1;
-                                    Dio dio = new Dio();
-                                    String url = linkUrl + 'updateCusto';
-                                    response1 = await dio.post(url, data: {
-                                      "CodOs": osCod,
-                                      "CodProduto": produtoCod
-                                    });
-                                    print(response1.data);
-                                    BotToast.showSimpleNotification(
-                                        title: "Item Adicionado");
-                                    _qtdController.clear();
-                                    _codprodController.clear();
-                                    produtoDesc = null;
-                                  } else if (response.data['error']
-                                          ['originalError']['info']['number'] ==
-                                      2627) {
-                                    print(
-                                        "Item já adicionado, foi somado ao existente");
-                                    //Faz o update
+                                  if ((nivelUsuario == "MASTER" ||
+                                          dataExpirada == "n") &&
+                                      (produtosList1[0].status != "Fechado")) {
                                     Response response;
                                     Dio dio = new Dio();
-                                    String url = linkUrl + 'updateProduto';
+                                    String url = linkUrl + 'addProduto';
                                     response = await dio.post(url, data: {
                                       "CodOs": osCod,
                                       "CodProduto": produtoCod,
                                       "Qtde": _qtdController.text.isEmpty
                                           ? 1
                                           : _qtdController.text,
+                                      "ValorUnitario": 1.00,
                                       "CodFuncionario": funcionarioDrop,
+                                      "Sub": 1.00,
+                                      "Tipo": "A",
                                       "Operador": operadorLogado,
+                                      "valorantigo": 1.00,
+                                      "Custounit": 1.00
                                     });
-                                    print(response.data);
-                                    BotToast.showSimpleNotification(
-                                        title: "Item Atualizado");
-                                    _qtdController.clear();
-                                    _codprodController.clear();
-                                    produtoDesc = null;
+
+                                    if (response.data == "Ok!") {
+                                      print("Response OK");
+                                      Response response1;
+                                      Dio dio = new Dio();
+                                      String url = linkUrl + 'updateCusto';
+                                      response1 = await dio.post(url, data: {
+                                        "CodOs": osCod,
+                                        "CodProduto": produtoCod
+                                      });
+                                      print(response1.data);
+                                      BotToast.showSimpleNotification(
+                                          title: "Item Adicionado");
+                                      _qtdController.clear();
+                                      _codprodController.clear();
+                                      produtoDesc = null;
+                                    } else if (response.data['error']
+                                                ['originalError']['info']
+                                            ['number'] ==
+                                        2627) {
+                                      print(
+                                          "Item já adicionado, foi somado ao existente");
+                                      //Faz o update
+                                      Response response;
+                                      Dio dio = new Dio();
+                                      String url = linkUrl + 'updateProduto';
+                                      response = await dio.post(url, data: {
+                                        "CodOs": osCod,
+                                        "CodProduto": produtoCod,
+                                        "Qtde": _qtdController.text.isEmpty
+                                            ? 1
+                                            : _qtdController.text,
+                                        "CodFuncionario": funcionarioDrop,
+                                        "Operador": operadorLogado,
+                                      });
+                                      print(response.data);
+                                      BotToast.showSimpleNotification(
+                                          title: "Item Atualizado");
+                                      _qtdController.clear();
+                                      _codprodController.clear();
+                                      produtoDesc = null;
+                                    } else {
+                                      print("erro");
+                                      BotToast.showSimpleNotification(
+                                          title: "ERRO");
+                                    }
+
+                                    Response response1;
+                                    Dio dio1 = new Dio();
+                                    String url1 = linkUrl + 'getOs';
+                                    response1 = await dio1.post(url1,
+                                        data: {"numeroos": numeroOS});
+
+                                    Future loadProdutos() async {
+                                      ProdutosList produtosList =
+                                          ProdutosList.fromJson(response1.data);
+                                      produtosList1 = produtosList.produtos;
+                                    }
+
+                                    setState(() {
+                                      loadProdutos();
+                                    });
                                   } else {
-                                    print("erro");
-                                    BotToast.showSimpleNotification(
-                                        title: "ERRO");
+                                    BotToast.showText(
+                                        text:
+                                            "Não é possível realizar alterações",
+                                        align: Alignment(0, 0),
+                                        clickClose: true,
+                                        contentColor: Colors.red,
+                                        backgroundColor: Colors.black26);
                                   }
 
-                                  Response response1;
-                                  Dio dio1 = new Dio();
-                                  String url1 = linkUrl + 'getOs';
-                                  response1 = await dio1
-                                      .post(url1, data: {"numeroos": numeroOS});
-
-                                  Future loadProdutos() async {
-                                    ProdutosList produtosList =
-                                        ProdutosList.fromJson(response1.data);
-                                    produtosList1 = produtosList.produtos;
-                                  }
-
-                                  setState(() {
-                                    loadProdutos();
-                                  });
-                                } else {
-                                  BotToast.showText(
-                                      text:
-                                          "Não é possível realizar alterações",
-                                      align: Alignment(0, 0),
-                                      clickClose: true,
-                                      contentColor: Colors.red,
-                                      backgroundColor: Colors.black26);
+                                  setState(() {});
                                 }
-
-                                setState(() {});
+                              } else {
+                                BotToast.showText(
+                                    duration: Duration(seconds: 2),
+                                    text: "PREENCHER FUNCIONÁRIO",
+                                    clickClose: false,
+                                    backgroundColor: Colors.black26,
+                                    align: Alignment(0, 0));
                               }
                             },
                             child: Icon(Icons.qr_code_scanner)))
@@ -838,6 +940,20 @@ class _OSState extends State<OS> {
                                       Response response;
                                       Dio dio = new Dio();
                                       String url = linkUrl + 'addProduto';
+                                      try {
+                                        await dio.get(url);
+                                      } on DioError catch (e) {
+                                        if (e.response != null) {
+                                          print(e.response.data);
+                                        } else {
+                                          BotToast.showText(
+                                              text: "FALHA NA CONEXÃO",
+                                              duration:
+                                                  Duration(milliseconds: 2000),
+                                              clickClose: true,
+                                              backgroundColor: Colors.black26);
+                                        }
+                                      }
                                       response = await dio.post(url, data: {
                                         "CodOs": osCod,
                                         "CodProduto": produtoCod,
@@ -879,6 +995,22 @@ class _OSState extends State<OS> {
                                         Response response;
                                         Dio dio = new Dio();
                                         String url = linkUrl + 'updateProduto';
+                                        //verificar conexão API/Banco de dados
+                                        try {
+                                          await dio.get(url);
+                                        } on DioError catch (e) {
+                                          if (e.response != null) {
+                                            print(e.response.data);
+                                          } else {
+                                            BotToast.showText(
+                                                text: "FALHA NA CONEXÃO",
+                                                duration: Duration(
+                                                    milliseconds: 2000),
+                                                clickClose: true,
+                                                backgroundColor:
+                                                    Colors.black26);
+                                          }
+                                        }
                                         response = await dio.post(url, data: {
                                           "CodOs": osCod,
                                           "CodProduto": produtoCod,

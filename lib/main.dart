@@ -1,8 +1,8 @@
-import 'package:app_novo/view/login.dart';
+//import 'package:app_novo/view/login.dart';
 import 'package:app_novo/view/splashscreen.dart';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+//import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());

@@ -11,26 +11,29 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  @override
   final _operadorController = TextEditingController();
   final _senhaController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  //Declaração da variável do checkbox;
+  bool checkedValue = false;
+
+  //Desing e comportamento dos elementos da tela
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Login"),
         centerTitle: true,
-        actions: [],
       ),
       body: Form(
           key: _formKey,
           child: ListView(
-            padding: EdgeInsets.all(10.0),
+            padding: EdgeInsets.all(20.0),
             children: [
               TextFormField(
                 inputFormatters: [UpperCaseTextFormatter()],
                 autocorrect: false,
+                enableSuggestions: false,
                 controller: _operadorController,
                 decoration: InputDecoration(hintText: "Usuário"),
                 // keyboardType: TextInputType.emailAddress,
@@ -46,7 +49,7 @@ class _LoginState extends State<Login> {
                 inputFormatters: [UpperCaseTextFormatter()],
                 controller: _senhaController,
                 decoration: InputDecoration(hintText: "Senha"),
-                obscureText: true,
+                obscureText: (!checkedValue),
                 // ignore: missing_return
                 validator: (text) {
                   if (text.isEmpty || text.length < 4) return "senha inválida";
@@ -68,12 +71,25 @@ class _LoginState extends State<Login> {
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
                         BotToast.showLoading(
-                          duration: Duration(seconds: 1),
+                          duration: Duration(seconds: 2),
+                          clickClose: false,
                         );
                         Response response;
                         Dio dio = new Dio();
-
-                        String url = 'http://192.168.15.6:8090/api/Login1';
+                        String url = 'http://192.168.15.5:8090/api/Login1';
+                        try {
+                          await dio.get(url);
+                        } on DioError catch (e) {
+                          if (e.response != null) {
+                            print(e.response.data);
+                          } else {
+                            BotToast.showText(
+                                text: "FALHA NA CONEXÃO",
+                                duration: Duration(milliseconds: 2000),
+                                clickClose: true,
+                                backgroundColor: Colors.black26);
+                          }
+                        }
                         //String url = 'http://192.168.1.66:8090/api/Login1';
                         //'http://192.168.15.2:8090/api/Login1';
                         // String url = 'https://webhook.site/ede21526-bec6-4089-b18d-cd4941184db9';
@@ -100,17 +116,22 @@ class _LoginState extends State<Login> {
                           //      ['info']['message']);
                           final prefs = await SharedPreferences.getInstance();
                           final prefs1 = await SharedPreferences.getInstance();
+                          //final prefs2 = await SharedPreferences.getInstance();
                           final key = 'operador';
                           final value = _operadorController.text;
                           final key1 = 'nivel';
                           final value1 = response.data['Nivel'];
                           final key2 = 'removeapp';
                           final value2 = response.data['removeapp'].toString();
+                          // final key3 = 'usaapp';
+                          // final value3 = response.data['usaapp'].toString();
 
                           prefs.setString(key, value);
                           prefs1.setString(key1, value1);
                           prefs1.setString(key2, value2);
+                          //prefs2.setString(key3, value3);
                           print('saved $value');
+
                           Navigator.of(context).pushReplacement(
                               MaterialPageRoute(builder: (context) => OS()));
                         }
@@ -123,7 +144,22 @@ class _LoginState extends State<Login> {
                         borderRadius: BorderRadius.circular(32.0),
                       ),
                     ),
-                  ))
+                  )),
+              SizedBox(
+                height: 40.0,
+              ),
+              SizedBox(
+                height: 30.0,
+                child: CheckboxListTile(
+                  title: Text("Mostrar Senha"),
+                  value: checkedValue,
+                  onChanged: (newValue) {
+                    setState(() {
+                      checkedValue = newValue;
+                    });
+                  },
+                ),
+              ),
             ],
           )),
     );
